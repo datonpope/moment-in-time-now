@@ -2,39 +2,61 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Authentic Moments Design System - Colors celebrating authenticity and natural moments */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Core authenticity palette */
+    --background: 35 20% 98%;
+    --foreground: 25 15% 15%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 35 25% 96%;
+    --card-foreground: 25 15% 15%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 35 25% 96%;
+    --popover-foreground: 25 15% 15%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Warm amber - representing authentic moments */
+    --primary: 35 85% 55%;
+    --primary-foreground: 35 20% 98%;
+    --primary-glow: 35 90% 65%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Natural green - growth and authenticity */
+    --secondary: 140 40% 45%;
+    --secondary-foreground: 35 20% 98%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Soft, natural muted tones */
+    --muted: 35 15% 92%;
+    --muted-foreground: 25 8% 45%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Bluesky accent - connection to the platform */
+    --accent: 210 85% 58%;
+    --accent-foreground: 35 20% 98%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 35 20% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 35 12% 88%;
+    --input: 35 12% 88%;
+    --ring: 35 85% 55%;
+
+    /* Authentic moment specific colors */
+    --timer: 15 90% 50%;
+    --timer-warning: 25 95% 50%;
+    --timer-critical: 0 85% 55%;
+    
+    /* Gradients for authentic aesthetics */
+    --gradient-authentic: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
+    --gradient-natural: linear-gradient(180deg, hsl(var(--background)), hsl(var(--muted)));
+    --gradient-timer: linear-gradient(90deg, hsl(var(--timer)), hsl(var(--timer-warning)));
+    
+    /* Shadows with warm tones */
+    --shadow-authentic: 0 10px 30px -10px hsl(var(--primary) / 0.2);
+    --shadow-soft: 0 4px 20px -4px hsl(var(--foreground) / 0.1);
+    
+    /* Animation timing for authentic feel */
+    --transition-authentic: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-timer: all 0.1s ease-out;
 
     --radius: 0.5rem;
 
