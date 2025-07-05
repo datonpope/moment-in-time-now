@@ -10,9 +10,10 @@ import { Loader2, User, Mail, Lock } from 'lucide-react';
 interface AuthFormProps {
   mode: 'signin' | 'signup';
   onToggleMode: () => void;
+  onShowReset?: () => void;
 }
 
-export const AuthForm = ({ mode, onToggleMode }: AuthFormProps) => {
+export const AuthForm = ({ mode, onToggleMode, onShowReset }: AuthFormProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
@@ -137,17 +138,31 @@ export const AuthForm = ({ mode, onToggleMode }: AuthFormProps) => {
           </Button>
         </form>
         
-        <div className="mt-4 text-center text-sm">
-          <span className="text-muted-foreground">
-            {mode === 'signup' ? 'Already have an account?' : "Don't have an account?"}
-          </span>{' '}
-          <button
-            type="button"
-            onClick={onToggleMode}
-            className="text-primary font-medium hover:underline"
-          >
-            {mode === 'signup' ? 'Sign In' : 'Sign Up'}
-          </button>
+        <div className="mt-4 text-center text-sm space-y-2">
+          <div>
+            <span className="text-muted-foreground">
+              {mode === 'signup' ? 'Already have an account?' : "Don't have an account?"}
+            </span>{' '}
+            <button
+              type="button"
+              onClick={onToggleMode}
+              className="text-primary font-medium hover:underline"
+            >
+              {mode === 'signup' ? 'Sign In' : 'Sign Up'}
+            </button>
+          </div>
+          
+          {mode === 'signin' && onShowReset && (
+            <div>
+              <button
+                type="button"
+                onClick={onShowReset}
+                className="text-muted-foreground hover:text-primary font-medium hover:underline text-sm"
+              >
+                Forgot your password?
+              </button>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

@@ -1,4 +1,4 @@
-import CameraCapture from "@/components/CameraCapture";
+import CameraCaptureRefactored from "@/components/CameraCaptureRefactored";
 import Navigation from "@/components/Navigation";
 
 const Capture = () => {
@@ -6,7 +6,7 @@ const Capture = () => {
     <div>
       <Navigation />
       <div className="pt-16">
-        <CameraCapture />
+        <CameraCaptureRefactored />
       </div>
     </div>
   );

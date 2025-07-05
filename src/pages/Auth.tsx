@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AuthForm } from '@/components/AuthForm';
+import { PasswordResetForm } from '@/components/PasswordResetForm';
 import { useAuth } from '@/hooks/useAuth';
 import { Camera } from 'lucide-react';
 
 const Auth = () => {
-  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
+  const [searchParams] = useSearchParams();
+  const authMode = searchParams.get('mode');
+  const [mode, setMode] = useState<'signin' | 'signup' | 'reset'>(
+    authMode === 'reset' ? 'reset' : 'signin'
+  );  
   const { user, loading } = useAuth();
   const navigate = useNavigate();
 
@@ -17,7 +22,15 @@ const Auth = () => {
   }, [user, loading, navigate]);
 
   const toggleMode = () => {
-    setMode(mode === 'signin' ? 'signup' : 'signin');
+    if (mode === 'reset') {
+      setMode('signin');
+    } else {
+      setMode(mode === 'signin' ? 'signup' : 'signin');
+    }
+  };
+
+  const showResetForm = () => {
+    setMode('reset');
   };
 
   if (loading) {
@@ -38,14 +51,22 @@ const Auth = () => {
             Authentic Moments
           </div>
           <h1 className="text-3xl font-bold text-foreground mb-2">
-            {mode === 'signup' ? 'Join the Community' : 'Welcome Back'}
+            {mode === 'signup' ? 'Join the Community' : 
+             mode === 'reset' ? 'Reset Password' : 'Welcome Back'}
           </h1>
           <p className="text-muted-foreground">
-            Where every moment is genuine and unfiltered
+            {mode === 'reset' 
+              ? 'Enter your email to receive a password reset link'
+              : 'Where every moment is genuine and unfiltered'
+            }
           </p>
         </div>
 
-        <AuthForm mode={mode} onToggleMode={toggleMode} />
+        {mode === 'reset' ? (
+          <PasswordResetForm onBackToSignIn={() => setMode('signin')} />
+        ) : (
+          <AuthForm mode={mode} onToggleMode={toggleMode} onShowReset={showResetForm} />
+        )}
       </div>
     </div>
   );
