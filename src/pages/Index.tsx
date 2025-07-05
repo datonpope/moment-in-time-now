@@ -1,15 +1,17 @@
 import Hero from "@/components/Hero";
-import CameraInterface from "@/components/CameraInterface";
-import FeedPreview from "@/components/FeedPreview";
+import MomentsFeed from "@/components/MomentsFeed";
 import BlueskyIntegration from "@/components/BlueskyIntegration";
+import Navigation from "@/components/Navigation";
 
 const Index = () => {
   return (
     <div className="min-h-screen">
-      <Hero />
-      <CameraInterface />
-      <FeedPreview />
-      <BlueskyIntegration />
+      <Navigation />
+      <div className="pt-16">
+        <Hero />
+        <MomentsFeed />
+        <BlueskyIntegration />
+      </div>
     </div>
   );
 };

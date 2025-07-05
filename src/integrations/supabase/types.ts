@@ -9,6 +9,45 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      moments: {
+        Row: {
+          bluesky_uri: string | null
+          capture_time: number
+          content: string
+          created_at: string
+          id: string
+          is_published: boolean | null
+          media_type: string | null
+          media_url: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bluesky_uri?: string | null
+          capture_time: number
+          content: string
+          created_at?: string
+          id?: string
+          is_published?: boolean | null
+          media_type?: string | null
+          media_url?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bluesky_uri?: string | null
+          capture_time?: number
+          content?: string
+          created_at?: string
+          id?: string
+          is_published?: boolean | null
+          media_type?: string | null
+          media_url?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
