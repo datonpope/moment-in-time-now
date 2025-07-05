@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useBluesky } from './useBluesky';
@@ -24,7 +24,7 @@ export const useMoments = () => {
   const { user } = useAuth();
   const { postToBluesky } = useBluesky();
 
-  const fetchMoments = async () => {
+  const fetchMoments = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('moments')
@@ -43,7 +43,7 @@ export const useMoments = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchMoments();
@@ -67,9 +67,9 @@ export const useMoments = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [fetchMoments]);
 
-  const createMoment = async (
+  const createMoment = useCallback(async (
     content: string,
     mediaFile: File | null,
     captureTime: number,
@@ -140,7 +140,7 @@ export const useMoments = () => {
       console.error('Error creating moment:', error);
       throw error;
     }
-  };
+  }, [user]);
 
   return {
     moments,

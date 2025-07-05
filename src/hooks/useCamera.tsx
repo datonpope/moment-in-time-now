@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
 interface UseCameraReturn {
@@ -16,6 +16,7 @@ export const useCamera = (): UseCameraReturn => {
   const [error, setError] = useState<string | null>(null);
   const [lastCaptureMode, setLastCaptureMode] = useState<'photo' | 'video'>('photo');
   const { toast } = useToast();
+  const initializingRef = useRef(false);
 
   const cleanupCamera = useCallback(() => {
     if (stream) {
@@ -28,6 +29,12 @@ export const useCamera = (): UseCameraReturn => {
   }, [stream]);
 
   const initCamera = useCallback(async (captureMode: 'photo' | 'video') => {
+    // Prevent multiple simultaneous initializations
+    if (initializingRef.current) {
+      return;
+    }
+
+    initializingRef.current = true;
     setIsInitializing(true);
     setError(null);
     setLastCaptureMode(captureMode);
@@ -36,6 +43,12 @@ export const useCamera = (): UseCameraReturn => {
       // Check if browser supports getUserMedia
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         throw new Error('Camera not supported by this browser');
+      }
+
+      // Clean up existing stream first
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        setStream(null);
       }
 
       // Request camera permission and stream
@@ -61,8 +74,9 @@ export const useCamera = (): UseCameraReturn => {
       });
     } finally {
       setIsInitializing(false);
+      initializingRef.current = false;
     }
-  }, [toast]);
+  }, [toast, stream]);
 
   const retryCamera = useCallback(async () => {
     cleanupCamera();

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useToast } from './use-toast';
@@ -27,9 +27,33 @@ export const useProfile = () => {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const fetchProfile = async () => {
+  const createProfile = useCallback(async () => {
     if (!user) return;
 
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .insert({
+          user_id: user.id,
+          display_name: user.email?.split('@')[0] || 'User',
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      setProfile(data);
+    } catch (error) {
+      console.error('Error creating profile:', error);
+    }
+  }, [user]);
+
+  const fetchProfile = useCallback(async () => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
     try {
       const { data, error } = await supabase
         .from('profiles')
@@ -57,29 +81,9 @@ export const useProfile = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, toast, createProfile]);
 
-  const createProfile = async () => {
-    if (!user) return;
-
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .insert({
-          user_id: user.id,
-          display_name: user.email?.split('@')[0] || 'User',
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      setProfile(data);
-    } catch (error) {
-      console.error('Error creating profile:', error);
-    }
-  };
-
-  const updateProfile = async (updates: Partial<Profile>) => {
+  const updateProfile = useCallback(async (updates: Partial<Profile>) => {
     if (!user || !profile) return;
 
     try {
@@ -105,11 +109,11 @@ export const useProfile = () => {
         variant: "destructive",
       });
     }
-  };
+  }, [user, profile, toast]);
 
   useEffect(() => {
     fetchProfile();
-  }, [user]);
+  }, [fetchProfile]);
 
   return {
     profile,
