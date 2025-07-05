@@ -59,27 +59,54 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          bio: string | null
+          bluesky_did: string | null
+          bluesky_handle: string | null
           created_at: string
           display_name: string | null
+          follower_count: number | null
+          following_count: number | null
           id: string
+          is_verified: boolean | null
+          location: string | null
+          moments_count: number | null
           updated_at: string
           user_id: string
+          website: string | null
         }
         Insert: {
           avatar_url?: string | null
+          bio?: string | null
+          bluesky_did?: string | null
+          bluesky_handle?: string | null
           created_at?: string
           display_name?: string | null
+          follower_count?: number | null
+          following_count?: number | null
           id?: string
+          is_verified?: boolean | null
+          location?: string | null
+          moments_count?: number | null
           updated_at?: string
           user_id: string
+          website?: string | null
         }
         Update: {
           avatar_url?: string | null
+          bio?: string | null
+          bluesky_did?: string | null
+          bluesky_handle?: string | null
           created_at?: string
           display_name?: string | null
+          follower_count?: number | null
+          following_count?: number | null
           id?: string
+          is_verified?: boolean | null
+          location?: string | null
+          moments_count?: number | null
           updated_at?: string
           user_id?: string
+          website?: string | null
         }
         Relationships: []
       }
