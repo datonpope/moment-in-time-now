@@ -1,11 +1,16 @@
 import { Button } from "@/components/ui/button";
 import { Clock, Camera } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import heroImage from "@/assets/hero-authentic.jpg";
 
 const Hero = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleBlueskyConnect = () => {
+    navigate('/profile?tab=bluesky');
+  };
 
   return (
     <section className="relative min-h-screen flex items-center bg-gradient-natural">
@@ -47,7 +52,7 @@ const Hero = () => {
                 </Button>
               )}
               
-              <Button variant="bluesky" size="lg">
+              <Button variant="bluesky" size="lg" onClick={handleBlueskyConnect}>
                 Connect with Bluesky
               </Button>
             </div>

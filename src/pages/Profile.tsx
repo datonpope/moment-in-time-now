@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
+import { useSearchParams } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import ProfileHeader from "@/components/ProfileHeader";
 import ProfileSettings from "@/components/ProfileSettings";
@@ -11,7 +12,15 @@ import { Card } from "@/components/ui/card";
 const Profile = () => {
   const { user } = useAuth();
   const { profile, loading, updateProfile } = useProfile();
+  const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState("profile");
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && ['profile', 'bluesky', 'settings'].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
   if (loading) {
     return (

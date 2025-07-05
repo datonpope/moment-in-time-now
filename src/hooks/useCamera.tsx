@@ -16,7 +16,6 @@ export const useCamera = (): UseCameraReturn => {
   const [error, setError] = useState<string | null>(null);
   const [lastCaptureMode, setLastCaptureMode] = useState<'photo' | 'video'>('photo');
   const { toast } = useToast();
-  const initializingRef = useRef(false);
 
   const cleanupCamera = useCallback(() => {
     if (stream) {
@@ -29,12 +28,13 @@ export const useCamera = (): UseCameraReturn => {
   }, [stream]);
 
   const initCamera = useCallback(async (captureMode: 'photo' | 'video') => {
-    // Prevent multiple simultaneous initializations
-    if (initializingRef.current) {
+    console.log('Initializing camera for mode:', captureMode);
+    
+    if (isInitializing) {
+      console.log('Camera already initializing, skipping...');
       return;
     }
 
-    initializingRef.current = true;
     setIsInitializing(true);
     setError(null);
     setLastCaptureMode(captureMode);
@@ -47,10 +47,12 @@ export const useCamera = (): UseCameraReturn => {
 
       // Clean up existing stream first
       if (stream) {
+        console.log('Cleaning up existing stream...');
         stream.getTracks().forEach(track => track.stop());
         setStream(null);
       }
 
+      console.log('Requesting camera permissions...');
       // Request camera permission and stream
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: { 
@@ -61,9 +63,11 @@ export const useCamera = (): UseCameraReturn => {
         audio: captureMode === 'video'
       });
       
+      console.log('Camera stream obtained successfully');
       setStream(mediaStream);
       setError(null);
     } catch (err) {
+      console.error('Camera initialization failed:', err);
       const errorMessage = getErrorMessage(err);
       setError(errorMessage);
       
@@ -74,9 +78,8 @@ export const useCamera = (): UseCameraReturn => {
       });
     } finally {
       setIsInitializing(false);
-      initializingRef.current = false;
     }
-  }, [toast, stream]);
+  }, [toast, stream, isInitializing]);
 
   const retryCamera = useCallback(async () => {
     cleanupCamera();
