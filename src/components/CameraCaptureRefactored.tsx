@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
@@ -10,25 +10,40 @@ import { useMoments } from '@/hooks/useMoments';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { useTimer } from '@/hooks/useTimer';
+import { useCapture } from '@/hooks/useCapture';
 
 const CameraCaptureRefactored = () => {
-  const [isRecording, setIsRecording] = useState(false);
-  const [captureMode, setCaptureMode] = useState<'photo' | 'video'>('photo');
-  const [capturedMedia, setCapturedMedia] = useState<File | null>(null);
-  const [capturedUrl, setCapturedUrl] = useState<string | null>(null);
-  const [timeLeft, setTimeLeft] = useState(60);
-  const [isActive, setIsActive] = useState(false);
-  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   
   const { stream, isInitializing, error, initCamera, cleanupCamera, retryCamera } = useCamera();
   const { createMoment } = useMoments();
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  
+  const { 
+    timeLeft, 
+    isActive, 
+    startTimer, 
+    resetTimer, 
+    getTimerColor, 
+    formatTime 
+  } = useTimer(60, cleanupCamera);
+  
+  const {
+    isRecording,
+    captureMode,
+    capturedMedia,
+    capturedUrl,
+    setVideoRef,
+    setCanvasRef,
+    setCaptureMode,
+    capturePhoto,
+    startVideoRecording,
+    stopVideoRecording,
+    resetCapture
+  } = useCapture();
 
   // Initialize camera when component mounts
   useEffect(() => {
@@ -40,80 +55,6 @@ const CameraCaptureRefactored = () => {
     return cleanupCamera;
   }, [user, navigate, initCamera, cleanupCamera, captureMode]);
 
-  // Timer effect
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    
-    if (isActive && timeLeft > 0) {
-      interval = setInterval(() => {
-        setTimeLeft(prev => prev - 1);
-      }, 1000);
-    } else if (timeLeft === 0) {
-      setIsActive(false);
-      cleanupCamera();
-    }
-    
-    return () => clearInterval(interval);
-  }, [isActive, timeLeft, cleanupCamera]);
-
-  const startCapture = () => {
-    setIsActive(true);
-    setTimeLeft(60);
-  };
-
-  const capturePhoto = async () => {
-    if (!videoRef.current || !canvasRef.current) return;
-
-    const canvas = canvasRef.current;
-    const video = videoRef.current;
-    const ctx = canvas.getContext('2d');
-
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    
-    if (ctx) {
-      ctx.drawImage(video, 0, 0);
-      canvas.toBlob((blob) => {
-        if (blob) {
-          const file = new File([blob], `photo-${Date.now()}.png`, { type: 'image/png' });
-          setCapturedMedia(file);
-          setCapturedUrl(URL.createObjectURL(blob));
-        }
-      });
-    }
-  };
-
-  const startVideoRecording = () => {
-    if (!stream) return;
-
-    const recorder = new MediaRecorder(stream);
-    const chunks: Blob[] = [];
-
-    recorder.ondataavailable = (event) => {
-      if (event.data.size > 0) {
-        chunks.push(event.data);
-      }
-    };
-
-    recorder.onstop = () => {
-      const blob = new Blob(chunks, { type: 'video/webm' });
-      const file = new File([blob], `video-${Date.now()}.webm`, { type: 'video/webm' });
-      setCapturedMedia(file);
-      setCapturedUrl(URL.createObjectURL(blob));
-      setIsRecording(false);
-    };
-
-    recorder.start();
-    setMediaRecorder(recorder);
-    setIsRecording(true);
-  };
-
-  const stopVideoRecording = () => {
-    if (mediaRecorder && isRecording) {
-      mediaRecorder.stop();
-    }
-  };
-
   const handleCapture = () => {
     if (captureMode === 'photo') {
       capturePhoto();
@@ -121,7 +62,7 @@ const CameraCaptureRefactored = () => {
       if (isRecording) {
         stopVideoRecording();
       } else {
-        startVideoRecording();
+        startVideoRecording(stream!);
       }
     }
   };
@@ -141,7 +82,7 @@ const CameraCaptureRefactored = () => {
           : "Your authentic moment has been shared with the community.",
       });
 
-      resetCapture();
+      handleResetCapture();
       navigate('/');
     } catch (error) {
       console.error('Error creating moment:', error);
@@ -155,26 +96,9 @@ const CameraCaptureRefactored = () => {
     }
   };
 
-  const resetCapture = () => {
-    setCapturedMedia(null);
-    setCapturedUrl(null);
-    setIsActive(false);
-    setTimeLeft(60);
-    if (capturedUrl) {
-      URL.revokeObjectURL(capturedUrl);
-    }
-  };
-
-  const getTimerColor = () => {
-    if (timeLeft <= 10) return 'text-timer-critical';
-    if (timeLeft <= 30) return 'text-timer-warning';
-    return 'text-timer';
-  };
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  const handleResetCapture = () => {
+    resetCapture();
+    resetTimer();
   };
 
   // Show captured media preview
@@ -185,7 +109,7 @@ const CameraCaptureRefactored = () => {
         captureMode={captureMode}
         captureTime={60 - timeLeft}
         onSubmit={submitMoment}
-        onRetake={resetCapture}
+        onRetake={handleResetCapture}
         isSubmitting={isSubmitting}
       />
     );
@@ -236,8 +160,8 @@ const CameraCaptureRefactored = () => {
           {/* Camera Viewfinder */}
           <CameraPreview
             stream={stream}
-            onVideoRef={(ref) => { videoRef.current = ref; }}
-            onCanvasRef={(ref) => { canvasRef.current = ref; }}
+            onVideoRef={setVideoRef}
+            onCanvasRef={setCanvasRef}
           />
 
           {/* Controls */}
@@ -246,7 +170,7 @@ const CameraCaptureRefactored = () => {
             isActive={isActive}
             isRecording={isRecording}
             onModeChange={setCaptureMode}
-            onStartCapture={startCapture}
+            onStartCapture={startTimer}
             onCapture={handleCapture}
           />
 
