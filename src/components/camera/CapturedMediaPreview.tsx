@@ -3,12 +3,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Send, X } from 'lucide-react';
+import BlueskyToggle from '@/components/BlueskyToggle';
 
 interface CapturedMediaPreviewProps {
   mediaUrl: string;
   captureMode: 'photo' | 'video';
   captureTime: number;
-  onSubmit: (content: string) => void;
+  onSubmit: (content: string, postToBluesky?: boolean) => void;
   onRetake: () => void;
   isSubmitting?: boolean;
 }
@@ -22,10 +23,11 @@ export const CapturedMediaPreview = ({
   isSubmitting = false
 }: CapturedMediaPreviewProps) => {
   const [content, setContent] = useState('');
+  const [postToBluesky, setPostToBluesky] = useState(false);
 
   const handleSubmit = () => {
     if (content.trim()) {
-      onSubmit(content);
+      onSubmit(content, postToBluesky);
     }
   };
 
@@ -49,19 +51,25 @@ export const CapturedMediaPreview = ({
             )}
           </div>
 
-          {/* Content Input */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">What's happening?</label>
-            <Input
-              placeholder="Describe your authentic moment..."
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              maxLength={200}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">What's happening?</label>
+              <Input
+                placeholder="Describe your authentic moment..."
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                maxLength={200}
+              />
+              <p className="text-xs text-muted-foreground text-right">
+                {content.length}/200
+              </p>
+            </div>
+
+            {/* Bluesky Toggle */}
+            <BlueskyToggle
+              enabled={postToBluesky}
+              onToggle={setPostToBluesky}
+              disabled={isSubmitting}
             />
-            <p className="text-xs text-muted-foreground text-right">
-              {content.length}/200
-            </p>
-          </div>
 
           {/* Actions */}
           <div className="flex gap-3">

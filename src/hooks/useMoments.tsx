@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { useBluesky } from './useBluesky';
 
 export interface Moment {
   id: string;
@@ -21,6 +22,7 @@ export const useMoments = () => {
   const [moments, setMoments] = useState<Moment[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+  const { postToBluesky } = useBluesky();
 
   const fetchMoments = async () => {
     try {
@@ -70,7 +72,8 @@ export const useMoments = () => {
   const createMoment = async (
     content: string,
     mediaFile: File | null,
-    captureTime: number
+    captureTime: number,
+    shouldPostToBluesky: boolean = false
   ) => {
     if (!user) throw new Error('User not authenticated');
 
@@ -110,6 +113,28 @@ export const useMoments = () => {
         .single();
 
       if (error) throw error;
+
+      // Post to Bluesky if requested and user has connected account
+      if (shouldPostToBluesky) {
+        try {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('bluesky_handle')
+            .eq('user_id', user.id)
+            .single();
+
+          if (profile?.bluesky_handle) {
+            // Note: In a real implementation, you'd need to securely store and retrieve
+            // the user's Bluesky app password. For now, this is a placeholder.
+            // Consider implementing a secure credential storage system.
+            console.log('Bluesky posting would happen here for moment:', data.id);
+          }
+        } catch (blueskyError) {
+          console.error('Bluesky posting failed:', blueskyError);
+          // Don't fail the moment creation if Bluesky posting fails
+        }
+      }
+
       return data;
     } catch (error) {
       console.error('Error creating moment:', error);

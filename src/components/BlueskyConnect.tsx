@@ -9,10 +9,13 @@ import {
   AlertCircle, 
   Link as LinkIcon, 
   Unlink,
-  ExternalLink 
+  ExternalLink,
+  Eye,
+  EyeOff
 } from "lucide-react";
 import { Profile } from "@/hooks/useProfile";
 import { useToast } from "@/hooks/use-toast";
+import { useBluesky } from "@/hooks/useBluesky";
 
 interface BlueskyConnectProps {
   profile: Profile | null;
@@ -20,56 +23,62 @@ interface BlueskyConnectProps {
 }
 
 const BlueskyConnect = ({ profile, onUpdate }: BlueskyConnectProps) => {
-  const [loading, setLoading] = useState(false);
   const [blueskyHandle, setBlueskyHandle] = useState(profile?.bluesky_handle || '');
+  const [blueskyPassword, setBlueskyPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const { toast } = useToast();
+  const { loading, verifyCredentials } = useBluesky();
 
   const isConnected = !!profile?.bluesky_handle;
 
   const handleConnect = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!blueskyHandle.trim()) return;
+    if (!blueskyHandle.trim() || !blueskyPassword.trim()) return;
 
-    setLoading(true);
-    
     try {
-      // Basic validation for Bluesky handle format
+      // Clean handle format
       const cleanHandle = blueskyHandle.replace('@', '').trim();
       
       if (!cleanHandle.includes('.')) {
         throw new Error('Please enter a valid Bluesky handle (e.g., username.bsky.social)');
       }
 
-      // For now, we'll just save the handle. In a real app, you'd verify it with AT Protocol
-      await onUpdate({ 
-        bluesky_handle: cleanHandle,
-        bluesky_did: `did:plc:${cleanHandle}` // Simplified DID format
+      // Verify credentials with Bluesky
+      const result = await verifyCredentials({
+        handle: cleanHandle,
+        password: blueskyPassword
       });
 
-      toast({
-        title: "Success",
-        description: "Bluesky account connected successfully!",
-      });
+      if (result.success) {
+        await onUpdate({ 
+          bluesky_handle: result.handle,
+          bluesky_did: result.did
+        });
+
+        toast({
+          title: "Success",
+          description: "Bluesky account connected and verified!",
+        });
+        
+        setBlueskyPassword(''); // Clear password after successful connection
+      }
     } catch (error: any) {
       toast({
         title: "Error",
         description: error.message || "Failed to connect Bluesky account",
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleDisconnect = async () => {
-    setLoading(true);
-    
     try {
       await onUpdate({ 
         bluesky_handle: null,
         bluesky_did: null
       });
       setBlueskyHandle('');
+      setBlueskyPassword('');
       
       toast({
         title: "Success",
@@ -81,8 +90,6 @@ const BlueskyConnect = ({ profile, onUpdate }: BlueskyConnectProps) => {
         description: "Failed to disconnect Bluesky account",
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -142,9 +149,43 @@ const BlueskyConnect = ({ profile, onUpdate }: BlueskyConnectProps) => {
               </p>
             </div>
 
-            <Button type="submit" disabled={loading || !blueskyHandle.trim()} className="gap-2">
+            <div>
+              <Label htmlFor="bluesky_password">App Password</Label>
+              <div className="relative">
+                <Input
+                  id="bluesky_password"
+                  type={showPassword ? "text" : "password"}
+                  value={blueskyPassword}
+                  onChange={(e) => setBlueskyPassword(e.target.value)}
+                  placeholder="Enter your Bluesky app password"
+                  disabled={loading}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+              <p className="text-sm text-muted-foreground mt-1">
+                Create an app password in your Bluesky settings for secure access
+              </p>
+            </div>
+
+            <Button 
+              type="submit" 
+              disabled={loading || !blueskyHandle.trim() || !blueskyPassword.trim()} 
+              className="gap-2"
+            >
               <LinkIcon className="w-4 h-4" />
-              {loading ? 'Connecting...' : 'Connect Bluesky'}
+              {loading ? 'Verifying...' : 'Connect & Verify'}
             </Button>
           </form>
         </Card>

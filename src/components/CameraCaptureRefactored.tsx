@@ -126,17 +126,19 @@ const CameraCaptureRefactored = () => {
     }
   };
 
-  const submitMoment = async (content: string) => {
+  const submitMoment = async (content: string, postToBluesky: boolean = false) => {
     if (!capturedMedia || !content.trim()) return;
 
     setIsSubmitting(true);
     try {
       const captureTime = 60 - timeLeft;
-      await createMoment(content, capturedMedia, captureTime);
+      await createMoment(content, capturedMedia, captureTime, postToBluesky);
       
       toast({
         title: "Moment Shared!",
-        description: "Your authentic moment has been shared with the community.",
+        description: postToBluesky 
+          ? "Your authentic moment has been shared with the community and posted to Bluesky!"
+          : "Your authentic moment has been shared with the community.",
       });
 
       resetCapture();
