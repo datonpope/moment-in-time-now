@@ -6,6 +6,7 @@ import { useMoments } from "@/hooks/useMoments";
 import { useAuth } from "@/hooks/useAuth";
 import { Link, useNavigate } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
+import MomentInteractions from "@/components/MomentInteractions";
 
 const MomentsFeed = () => {
   const { moments, loading } = useMoments();
@@ -126,13 +127,12 @@ const MomentsFeed = () => {
                 {/* Content */}
                 <p className="text-foreground mb-3">{moment.content}</p>
 
-                {/* Interaction Bar */}
-                <div className="flex items-center justify-between text-sm text-muted-foreground">
-                  <div className="flex items-center gap-4">
-                    <Button variant="ghost" size="sm" className="gap-2 h-8 px-2">
-                      <MessageSquare className="w-4 h-4" />
-                      0
-                    </Button>
+                {/* Interactions */}
+                <MomentInteractions momentId={moment.id} />
+
+                {/* Metadata */}
+                <div className="flex items-center justify-between text-sm text-muted-foreground mt-3 pt-3 border-t">
+                  <div className="flex items-center gap-2">
                     {moment.bluesky_uri && (
                       <span className="text-xs">Also on Bluesky</span>
                     )}
