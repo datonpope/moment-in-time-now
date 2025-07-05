@@ -1,11 +1,26 @@
 import { Button } from "@/components/ui/button";
 import { Clock, Camera } from "lucide-react";
+import { UserNav } from "@/components/UserNav";
+import { useAuth } from "@/hooks/useAuth";
 import heroImage from "@/assets/hero-authentic.jpg";
 
 const Hero = () => {
+  const { user } = useAuth();
+
   return (
     <section className="relative min-h-screen flex items-center bg-gradient-natural">
-      <div className="container mx-auto px-4 py-16">
+      {/* Navigation */}
+      <div className="absolute top-0 left-0 right-0 z-10">
+        <div className="container mx-auto px-4 py-6 flex justify-between items-center">
+          <div className="flex items-center gap-2 text-primary font-bold text-xl">
+            <Camera className="w-6 h-6" />
+            Authentic Moments
+          </div>
+          <UserNav />
+        </div>
+      </div>
+
+      <div className="container mx-auto px-4 py-16 pt-24">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Content */}
           <div className="text-center lg:text-left space-y-8">
@@ -27,10 +42,17 @@ const Hero = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Button variant="authentic" size="lg" className="gap-2">
-                <Camera className="w-5 h-5" />
-                Start Your First Moment
-              </Button>
+              {user ? (
+                <Button variant="authentic" size="lg" className="gap-2">
+                  <Camera className="w-5 h-5" />
+                  Capture Your Moment
+                </Button>
+              ) : (
+                <Button variant="authentic" size="lg" className="gap-2">
+                  <Camera className="w-5 h-5" />
+                  Start Your First Moment
+                </Button>
+              )}
               
               <Button variant="bluesky" size="lg">
                 Connect with Bluesky
