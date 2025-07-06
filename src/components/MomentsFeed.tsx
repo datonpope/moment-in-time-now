@@ -2,16 +2,18 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Clock, MessageSquare, Camera, Plus } from "lucide-react";
-import { useMoments } from "@/hooks/useMoments";
+import { useOptimizedMoments } from "@/hooks/useOptimizedQueries";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { useAuth } from "@/hooks/useAuth";
 import { Link, useNavigate } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
 import MomentInteractions from "@/components/MomentInteractions";
 
 const MomentsFeed = () => {
-  const { moments, loading } = useMoments();
+  const { moments, loading, hasMore, loadMore } = useOptimizedMoments();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { trackUserAction } = useAnalytics();
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -147,10 +149,18 @@ const MomentsFeed = () => {
         </div>
 
         {/* Load More */}
-        {moments.length > 0 && (
+        {moments.length > 0 && hasMore && (
           <div className="text-center mt-8">
-            <Button variant="outline" size="lg">
-              Load More Moments
+            <Button 
+              variant="outline" 
+              size="lg"
+              onClick={() => {
+                loadMore();
+                trackUserAction('load_more_moments');
+              }}
+              disabled={loading}
+            >
+              {loading ? 'Loading...' : 'Load More Moments'}
             </Button>
           </div>
         )}
