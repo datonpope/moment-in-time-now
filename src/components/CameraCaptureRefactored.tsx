@@ -5,6 +5,7 @@ import { RefreshCw } from 'lucide-react';
 import { CameraPreview } from '@/components/camera/CameraPreview';
 import { CameraControls } from '@/components/camera/CameraControls';
 import { CapturedMediaPreview } from '@/components/camera/CapturedMediaPreview';
+import { CaptureConfirmationDialog } from '@/components/CaptureConfirmationDialog';
 import { useCamera } from '@/hooks/useCamera';
 import { useMoments } from '@/hooks/useMoments';
 import { useAuth } from '@/hooks/useAuth';
@@ -15,6 +16,7 @@ import { useCapture } from '@/hooks/useCapture';
 
 const CameraCaptureRefactored = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   
   const { stream, isInitializing, error, initCamera, cleanupCamera, retryCamera } = useCamera();
   const { createMoment } = useMoments();
@@ -81,13 +83,15 @@ const CameraCaptureRefactored = () => {
       await createMoment(content, capturedMedia, captureTime, postToBluesky);
       
       toast({
-        title: "Moment Shared!",
+        title: "Authentic Moment Shared!",
         description: postToBluesky 
-          ? "Your authentic moment has been shared with the community and posted to Bluesky!"
+          ? "Your raw, unfiltered moment is now live! No filters, no retakes - just pure authenticity."
           : "Your authentic moment has been shared with the community.",
       });
 
-      handleResetCapture();
+      // Reset and go back to home
+      resetCapture();
+      resetTimer();
       navigate('/');
     } catch (error) {
       console.error('Error creating moment:', error);
@@ -101,9 +105,18 @@ const CameraCaptureRefactored = () => {
     }
   };
 
-  const handleResetCapture = () => {
+  const handleDiscardMoment = () => {
     resetCapture();
     resetTimer();
+  };
+
+  const handleStartCapture = () => {
+    setShowConfirmDialog(true);
+  };
+
+  const handleConfirmCapture = () => {
+    setShowConfirmDialog(false);
+    startTimer();
   };
 
   // Show captured media preview
@@ -114,7 +127,7 @@ const CameraCaptureRefactored = () => {
         captureMode={captureMode}
         captureTime={60 - timeLeft}
         onSubmit={submitMoment}
-        onRetake={handleResetCapture}
+        onDiscard={handleDiscardMoment}
         isSubmitting={isSubmitting}
       />
     );
@@ -158,7 +171,7 @@ const CameraCaptureRefactored = () => {
               {formatTime(timeLeft)}
             </div>
             <p className="text-white/70 text-sm mt-2">
-              {isActive ? 'Capture your authentic moment!' : 'Tap start to begin'}
+              {isActive ? 'No retakes - make it count!' : 'One chance. One authentic moment.'}
             </p>
           </div>
 
@@ -175,7 +188,7 @@ const CameraCaptureRefactored = () => {
             isActive={isActive}
             isRecording={isRecording}
             onModeChange={setCaptureMode}
-            onStartCapture={startTimer}
+            onStartCapture={handleStartCapture}
             onCapture={handleCapture}
           />
 
@@ -194,9 +207,17 @@ const CameraCaptureRefactored = () => {
 
         {/* Instructions */}
         <div className="text-center mt-6 text-sm text-muted-foreground">
-          <p>You have 60 seconds to capture and share your authentic moment.</p>
-          <p className="mt-1">No time for perfection, just pure authenticity!</p>
+          <p>One authentic moment. No retakes. No filters. No excuses.</p>
+          <p className="mt-1">60 seconds to capture something real.</p>
         </div>
+
+        {/* Confirmation Dialog */}
+        <CaptureConfirmationDialog
+          open={showConfirmDialog}
+          onOpenChange={setShowConfirmDialog}
+          onConfirm={handleConfirmCapture}
+          captureMode={captureMode}
+        />
       </div>
     </div>
   );

@@ -31,7 +31,7 @@ const Hero = () => {
               
               <p className="text-xl text-muted-foreground max-w-lg">
                 The only place you can't fake it. 60 seconds from capture to share on Bluesky. 
-                No edits, no filters, no retakes - just pure, unfiltered moments.
+                No edits, no filters, no retakes - just pure, unfiltered authenticity.
               </p>
             </div>
 
@@ -60,7 +60,7 @@ const Hero = () => {
             <div className="flex items-center gap-8 text-sm text-muted-foreground justify-center lg:justify-start">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-secondary rounded-full"></div>
-                No filters allowed
+                No filters, no retakes
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-secondary rounded-full"></div>
@@ -68,7 +68,7 @@ const Hero = () => {
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-secondary rounded-full"></div>
-                Authenticity verified
+                One chance only
               </div>
             </div>
           </div>

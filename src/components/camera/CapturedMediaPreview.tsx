@@ -10,7 +10,7 @@ interface CapturedMediaPreviewProps {
   captureMode: 'photo' | 'video';
   captureTime: number;
   onSubmit: (content: string, postToBluesky?: boolean) => void;
-  onRetake: () => void;
+  onDiscard: () => void;
   isSubmitting?: boolean;
 }
 
@@ -19,7 +19,7 @@ export const CapturedMediaPreview = ({
   captureMode,
   captureTime,
   onSubmit,
-  onRetake,
+  onDiscard,
   isSubmitting = false
 }: CapturedMediaPreviewProps) => {
   const [content, setContent] = useState('');
@@ -36,9 +36,9 @@ export const CapturedMediaPreview = ({
       <Card className="w-full max-w-md p-6">
         <div className="space-y-4">
           <div className="text-center">
-            <h2 className="text-lg font-semibold mb-2">Share Your Moment</h2>
+            <h2 className="text-lg font-semibold mb-2">Your Authentic Moment</h2>
             <p className="text-sm text-muted-foreground">
-              Captured in {captureTime} seconds
+              Captured in {captureTime} seconds - no going back now!
             </p>
           </div>
 
@@ -75,12 +75,12 @@ export const CapturedMediaPreview = ({
           <div className="flex gap-3">
             <Button
               variant="outline"
-              onClick={onRetake}
+              onClick={onDiscard}
               className="flex-1"
               disabled={isSubmitting}
             >
               <X className="w-4 h-4 mr-2" />
-              Retake
+              Discard
             </Button>
             <Button
               onClick={handleSubmit}
@@ -88,7 +88,7 @@ export const CapturedMediaPreview = ({
               disabled={!content.trim() || isSubmitting}
             >
               <Send className="w-4 h-4 mr-2" />
-              Share
+              Share Forever
             </Button>
           </div>
         </div>
