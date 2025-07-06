@@ -1,11 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { RefreshCw } from 'lucide-react';
-import { CameraPreview } from '@/components/camera/CameraPreview';
-import { CameraControls } from '@/components/camera/CameraControls';
 import { CapturedMediaPreview } from '@/components/camera/CapturedMediaPreview';
-import { CaptureConfirmationDialog } from '@/components/CaptureConfirmationDialog';
+import { CameraLoadingState } from '@/components/camera/CameraLoadingState';
+import { CameraErrorState } from '@/components/camera/CameraErrorState';
+import { CameraInterface } from '@/components/camera/CameraInterface';
 import { useCamera } from '@/hooks/useCamera';
 import { useMoments } from '@/hooks/useMoments';
 import { useAuth } from '@/hooks/useAuth';
@@ -136,90 +133,37 @@ const CameraCaptureRefactored = () => {
   // Show error state
   if (error) {
     return (
-      <div className="min-h-screen bg-card p-4 flex items-center justify-center">
-        <Card className="w-full max-w-md p-6 text-center">
-          <h2 className="text-lg font-semibold mb-4">Camera Error</h2>
-          <p className="text-muted-foreground mb-4">{error}</p>
-          <Button onClick={retryCamera} disabled={isInitializing}>
-            <RefreshCw className="w-4 h-4 mr-2" />
-            {isInitializing ? 'Retrying...' : 'Retry Camera'}
-          </Button>
-        </Card>
-      </div>
+      <CameraErrorState
+        error={error}
+        onRetry={retryCamera}
+        isRetrying={isInitializing}
+      />
     );
   }
 
   // Show loading state
   if (isInitializing) {
-    return (
-      <div className="min-h-screen bg-card p-4 flex items-center justify-center">
-        <Card className="w-full max-w-md p-6 text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Initializing camera...</p>
-        </Card>
-      </div>
-    );
+    return <CameraLoadingState />;
   }
 
   return (
-    <div className="min-h-screen bg-card p-4 flex items-center justify-center">
-      <div className="w-full max-w-md">
-        <Card className="bg-black p-6 shadow-authentic">
-          {/* Timer Display */}
-          <div className="text-center mb-6">
-            <div className={`text-4xl font-bold ${getTimerColor()} transition-colors duration-300`}>
-              {formatTime(timeLeft)}
-            </div>
-            <p className="text-white/70 text-sm mt-2">
-              {isActive ? 'No retakes - make it count!' : 'One chance. One authentic moment.'}
-            </p>
-          </div>
-
-          {/* Camera Viewfinder */}
-          <CameraPreview
-            stream={stream}
-            onVideoRef={setVideoRef}
-            onCanvasRef={setCanvasRef}
-          />
-
-          {/* Controls */}
-          <CameraControls
-            captureMode={captureMode}
-            isActive={isActive}
-            isRecording={isRecording}
-            onModeChange={setCaptureMode}
-            onStartCapture={handleStartCapture}
-            onCapture={handleCapture}
-          />
-
-          {/* Progress Bar */}
-          {isActive && (
-            <div className="mt-4">
-              <div className="w-full bg-gray-700 rounded-full h-2">
-                <div 
-                  className="bg-gradient-timer h-2 rounded-full transition-all duration-1000"
-                  style={{ width: `${((60 - timeLeft) / 60) * 100}%` }}
-                ></div>
-              </div>
-            </div>
-          )}
-        </Card>
-
-        {/* Instructions */}
-        <div className="text-center mt-6 text-sm text-muted-foreground">
-          <p>One authentic moment. No retakes. No filters. No excuses.</p>
-          <p className="mt-1">60 seconds to capture something real.</p>
-        </div>
-
-        {/* Confirmation Dialog */}
-        <CaptureConfirmationDialog
-          open={showConfirmDialog}
-          onOpenChange={setShowConfirmDialog}
-          onConfirm={handleConfirmCapture}
-          captureMode={captureMode}
-        />
-      </div>
-    </div>
+    <CameraInterface
+      stream={stream}
+      timeLeft={timeLeft}
+      isActive={isActive}
+      isRecording={isRecording}
+      captureMode={captureMode}
+      showConfirmDialog={showConfirmDialog}
+      getTimerColor={getTimerColor}
+      formatTime={formatTime}
+      onVideoRef={setVideoRef}
+      onCanvasRef={setCanvasRef}
+      onModeChange={setCaptureMode}
+      onStartCapture={handleStartCapture}
+      onCapture={handleCapture}
+      onConfirmDialogChange={setShowConfirmDialog}
+      onConfirmCapture={handleConfirmCapture}
+    />
   );
 };
 
