@@ -3,6 +3,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AuthForm } from '@/components/AuthForm';
 import { PasswordResetForm } from '@/components/PasswordResetForm';
 import { useAuth } from '@/hooks/useAuth';
+import { useAnalytics } from '@/hooks/useAnalytics';
+import { SEO } from '@/components/SEO';
 import { Camera } from 'lucide-react';
 
 const Auth = () => {
@@ -13,6 +15,7 @@ const Auth = () => {
   );  
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const { trackAuthentication } = useAnalytics();
 
   useEffect(() => {
     // Redirect authenticated users to home
@@ -42,7 +45,15 @@ const Auth = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-natural flex items-center justify-center p-4">
+    <>
+      <SEO 
+        title={`${mode === 'signup' ? 'Join' : mode === 'reset' ? 'Reset Password' : 'Sign In'} - Authentic Moments`}
+        description={mode === 'signup' 
+          ? 'Join the Authentic Moments community. Share your unfiltered moments with the world.' 
+          : 'Sign in to your Authentic Moments account and continue sharing authentic moments.'
+        }
+      />
+      <div className="min-h-screen bg-gradient-natural flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo/Brand */}
         <div className="text-center mb-8">
@@ -67,8 +78,9 @@ const Auth = () => {
         ) : (
           <AuthForm mode={mode} onToggleMode={toggleMode} onShowReset={showResetForm} />
         )}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
