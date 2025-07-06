@@ -52,8 +52,13 @@ const CameraCaptureRefactored = () => {
       return;
     }
     initCamera(captureMode);
+    // Don't include cleanup function in effect cleanup to avoid infinite loops
+  }, [user, navigate, captureMode]); // Removed initCamera and cleanupCamera from deps
+
+  // Separate cleanup effect
+  useEffect(() => {
     return cleanupCamera;
-  }, [user, navigate, initCamera, cleanupCamera, captureMode]);
+  }, []);
 
   const handleCapture = () => {
     if (captureMode === 'photo') {
