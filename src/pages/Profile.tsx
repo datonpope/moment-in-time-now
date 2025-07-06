@@ -6,6 +6,7 @@ import Navigation from "@/components/Navigation";
 import ProfileHeader from "@/components/ProfileHeader";
 import ProfileSettings from "@/components/ProfileSettings";
 import BlueskyConnect from "@/components/BlueskyConnect";
+import AccountSettings from "@/components/AccountSettings";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 
@@ -68,12 +69,7 @@ const Profile = () => {
               </TabsContent>
               
               <TabsContent value="settings" className="mt-6">
-                <Card className="p-6">
-                  <h3 className="text-lg font-semibold mb-4">Account Settings</h3>
-                  <p className="text-muted-foreground">
-                    Additional settings will be available here soon.
-                  </p>
-                </Card>
+                <AccountSettings />
               </TabsContent>
             </Tabs>
           </div>

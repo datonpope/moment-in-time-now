@@ -77,14 +77,14 @@ const ProfileSettings = ({ profile, onUpdate }: ProfileSettingsProps) => {
 
       // Upload to Supabase Storage
       const { error: uploadError } = await supabase.storage
-        .from('moments')
+        .from('avatars')
         .upload(fileName, file, { upsert: true });
 
       if (uploadError) throw uploadError;
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
-        .from('moments')
+        .from('avatars')
         .getPublicUrl(fileName);
 
       // Update profile with new avatar URL
