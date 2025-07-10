@@ -15,7 +15,7 @@ const CameraCaptureRefactored = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   
-  const { stream, isInitializing, error, initCamera, cleanupCamera, retryCamera } = useCamera();
+  const { stream, isInitializing, error, facingMode, initCamera, cleanupCamera, retryCamera, toggleCamera } = useCamera();
   const { createMoment } = useMoments();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -114,6 +114,11 @@ const CameraCaptureRefactored = () => {
   const handleConfirmCapture = () => {
     setShowConfirmDialog(false);
     startTimer();
+    
+    // Auto-start video recording when timer starts (Phase 2 improvement)
+    if (captureMode === 'video' && stream) {
+      startVideoRecording(stream);
+    }
   };
 
   // Show captured media preview
@@ -153,6 +158,7 @@ const CameraCaptureRefactored = () => {
       isActive={isActive}
       isRecording={isRecording}
       captureMode={captureMode}
+      facingMode={facingMode}
       showConfirmDialog={showConfirmDialog}
       getTimerColor={getTimerColor}
       formatTime={formatTime}
@@ -161,6 +167,7 @@ const CameraCaptureRefactored = () => {
       onModeChange={setCaptureMode}
       onStartCapture={handleStartCapture}
       onCapture={handleCapture}
+      onToggleCamera={toggleCamera}
       onConfirmDialogChange={setShowConfirmDialog}
       onConfirmCapture={handleConfirmCapture}
     />

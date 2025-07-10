@@ -5,9 +5,11 @@ interface UseCameraReturn {
   stream: MediaStream | null;
   isInitializing: boolean;
   error: string | null;
+  facingMode: 'user' | 'environment';
   initCamera: (captureMode: 'photo' | 'video') => Promise<void>;
   cleanupCamera: () => void;
   retryCamera: () => Promise<void>;
+  toggleCamera: () => Promise<void>;
 }
 
 export const useCamera = (): UseCameraReturn => {
@@ -15,6 +17,7 @@ export const useCamera = (): UseCameraReturn => {
   const [isInitializing, setIsInitializing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastCaptureMode, setLastCaptureMode] = useState<'photo' | 'video'>('photo');
+  const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
   const { toast } = useToast();
 
   const cleanupCamera = useCallback(() => {
@@ -56,7 +59,7 @@ export const useCamera = (): UseCameraReturn => {
       // Request camera permission and stream
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: { 
-          facingMode: 'user',
+          facingMode: facingMode,
           width: { ideal: 1280 },
           height: { ideal: 720 }
         },
@@ -79,7 +82,17 @@ export const useCamera = (): UseCameraReturn => {
     } finally {
       setIsInitializing(false);
     }
-  }, [toast, stream, isInitializing]);
+  }, [toast, stream, isInitializing, facingMode]);
+
+  const toggleCamera = useCallback(async () => {
+    const newFacingMode = facingMode === 'user' ? 'environment' : 'user';
+    setFacingMode(newFacingMode);
+    
+    // Reinitialize camera with new facing mode
+    if (stream) {
+      await initCamera(lastCaptureMode);
+    }
+  }, [facingMode, stream, lastCaptureMode, initCamera]);
 
   const retryCamera = useCallback(async () => {
     cleanupCamera();
@@ -95,9 +108,11 @@ export const useCamera = (): UseCameraReturn => {
     stream,
     isInitializing,
     error,
+    facingMode,
     initCamera,
     cleanupCamera,
-    retryCamera
+    retryCamera,
+    toggleCamera
   };
 };
 

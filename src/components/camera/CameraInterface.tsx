@@ -9,6 +9,7 @@ interface CameraInterfaceProps {
   isActive: boolean;
   isRecording: boolean;
   captureMode: 'photo' | 'video';
+  facingMode: 'user' | 'environment';
   showConfirmDialog: boolean;
   getTimerColor: () => string;
   formatTime: (seconds: number) => string;
@@ -17,6 +18,7 @@ interface CameraInterfaceProps {
   onModeChange: (mode: 'photo' | 'video') => void;
   onStartCapture: () => void;
   onCapture: () => void;
+  onToggleCamera: () => void;
   onConfirmDialogChange: (open: boolean) => void;
   onConfirmCapture: () => void;
 }
@@ -27,6 +29,7 @@ export const CameraInterface = ({
   isActive,
   isRecording,
   captureMode,
+  facingMode,
   showConfirmDialog,
   getTimerColor,
   formatTime,
@@ -35,6 +38,7 @@ export const CameraInterface = ({
   onModeChange,
   onStartCapture,
   onCapture,
+  onToggleCamera,
   onConfirmDialogChange,
   onConfirmCapture
 }: CameraInterfaceProps) => {
@@ -64,9 +68,11 @@ export const CameraInterface = ({
             captureMode={captureMode}
             isActive={isActive}
             isRecording={isRecording}
+            facingMode={facingMode}
             onModeChange={onModeChange}
             onStartCapture={onStartCapture}
             onCapture={onCapture}
+            onToggleCamera={onToggleCamera}
           />
 
           {/* Progress Bar */}

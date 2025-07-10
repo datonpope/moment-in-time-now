@@ -1,22 +1,26 @@
 import { Button } from '@/components/ui/button';
-import { Camera, Video, Square, Play } from 'lucide-react';
+import { Camera, Video, Square, Play, RotateCcw } from 'lucide-react';
 
 interface CameraControlsProps {
   captureMode: 'photo' | 'video';
   isActive: boolean;
   isRecording: boolean;
+  facingMode: 'user' | 'environment';
   onModeChange: (mode: 'photo' | 'video') => void;
   onStartCapture: () => void;
   onCapture: () => void;
+  onToggleCamera: () => void;
 }
 
 export const CameraControls = ({
   captureMode,
   isActive,
   isRecording,
+  facingMode,
   onModeChange,
   onStartCapture,
-  onCapture
+  onCapture,
+  onToggleCamera
 }: CameraControlsProps) => {
   return (
     <div className="flex items-center justify-between">
@@ -67,8 +71,19 @@ export const CameraControls = ({
         </Button>
       )}
 
-      {/* Placeholder for balance */}
-      <div className="w-20"></div>
+      {/* Camera Flip Button */}
+      <div className="flex justify-end w-20">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onToggleCamera}
+          className="text-white p-2"
+          disabled={isActive}
+          title={`Switch to ${facingMode === 'user' ? 'back' : 'front'} camera`}
+        >
+          <RotateCcw className="w-4 h-4" />
+        </Button>
+      </div>
     </div>
   );
 };
