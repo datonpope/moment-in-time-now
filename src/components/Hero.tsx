@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Clock, Camera } from "lucide-react";
+import { Clock, Camera, Smartphone, Download } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Link, useNavigate } from "react-router-dom";
 import heroImage from "@/assets/hero-authentic.jpg";
@@ -20,8 +20,8 @@ const Hero = () => {
           <div className="text-center lg:text-left space-y-8 animate-fade-in">
             <div className="space-y-6">
               <div className="inline-flex items-center gap-2 bg-primary/15 text-primary px-4 py-2 rounded-full text-sm font-medium border border-primary/20 backdrop-blur-sm">
-                <Clock className="w-4 h-4 animate-pulse" />
-                60 seconds to authenticity
+                <Smartphone className="w-4 h-4 animate-pulse" />
+                Coming Soon to Mobile
               </div>
               
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground leading-tight">
@@ -30,12 +30,13 @@ const Hero = () => {
               </h1>
               
               <p className="text-lg md:text-xl text-muted-foreground max-w-lg mx-auto lg:mx-0 leading-relaxed">
-                The only place you can't fake it. 60 seconds from capture to share on Bluesky. 
-                No edits, no filters, no retakes - just pure, unfiltered authenticity.
+                The mobile app that captures real life in 60 seconds. Share authentic moments directly to Bluesky 
+                - no edits, no filters, no second chances. Get ready for the most genuine social experience.
               </p>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              {/* Web App Preview Button */}
               {user ? (
                 <Button 
                   asChild 
@@ -45,7 +46,7 @@ const Hero = () => {
                 >
                   <Link to="/capture">
                     <Camera className="w-5 h-5 group-hover:rotate-6 transition-transform duration-200" />
-                    Capture Your Moment
+                    Try Web Preview
                   </Link>
                 </Button>
               ) : (
@@ -57,7 +58,7 @@ const Hero = () => {
                 >
                   <Link to="/auth">
                     <Camera className="w-5 h-5 group-hover:rotate-6 transition-transform duration-200" />
-                    Start Your First Moment
+                    Try Web Preview
                   </Link>
                 </Button>
               )}
@@ -70,6 +71,43 @@ const Hero = () => {
               >
                 Connect with Bluesky
               </Button>
+            </div>
+
+            {/* App Store Buttons - Coming Soon */}
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground text-center lg:text-left">
+                Get notified when the mobile app launches:
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+                <div className="relative">
+                  <Button 
+                    disabled
+                    variant="outline" 
+                    size="lg" 
+                    className="gap-2 opacity-60 cursor-not-allowed bg-background/50"
+                  >
+                    <Download className="w-5 h-5" />
+                    Download on App Store
+                  </Button>
+                  <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                    Soon
+                  </span>
+                </div>
+                <div className="relative">
+                  <Button 
+                    disabled
+                    variant="outline" 
+                    size="lg" 
+                    className="gap-2 opacity-60 cursor-not-allowed bg-background/50"
+                  >
+                    <Download className="w-5 h-5" />
+                    Get it on Google Play
+                  </Button>
+                  <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                    Soon
+                  </span>
+                </div>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-muted-foreground justify-center lg:justify-start max-w-md mx-auto lg:mx-0">
@@ -97,10 +135,10 @@ const Hero = () => {
                 className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700"
               />
               
-              {/* Overlay timer mockup */}
+              {/* Mobile App Preview Overlay */}
               <div className="absolute top-4 left-4 right-4 sm:top-6 sm:left-6 sm:right-6">
                 <div className="bg-black/80 text-white rounded-2xl px-4 py-3 sm:px-6 flex items-center justify-between backdrop-blur-md border border-white/20 shadow-lg">
-                  <span className="text-xs sm:text-sm font-medium">Capture your moment</span>
+                  <span className="text-xs sm:text-sm font-medium">Mobile App Preview</span>
                   <span className="text-xl sm:text-2xl font-bold text-timer animate-pulse">00:47</span>
                 </div>
               </div>
