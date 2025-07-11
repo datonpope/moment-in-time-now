@@ -28,9 +28,36 @@ const MomentsFeed = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-16">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
+      <section className="py-16 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4">Authentic Moments</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Loading authentic moments from the community...
+            </p>
+          </div>
+          
+          <div className="max-w-lg mx-auto space-y-6">
+            {[...Array(3)].map((_, i) => (
+              <Card key={i} className="p-6 shadow-soft animate-pulse">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-muted rounded-full"></div>
+                  <div className="flex-1">
+                    <div className="h-4 bg-muted rounded mb-2 w-32"></div>
+                    <div className="h-3 bg-muted rounded w-20"></div>
+                  </div>
+                  <div className="h-6 bg-muted rounded-full w-16"></div>
+                </div>
+                <div className="aspect-square bg-muted rounded-xl mb-4"></div>
+                <div className="space-y-2">
+                  <div className="h-4 bg-muted rounded w-full"></div>
+                  <div className="h-4 bg-muted rounded w-3/4"></div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
     );
   }
 
@@ -79,11 +106,15 @@ const MomentsFeed = () => {
               )}
             </Card>
           ) : (
-            moments.map((moment) => (
-              <Card key={moment.id} className="p-6 shadow-soft">
+            moments.map((moment, index) => (
+              <Card 
+                key={moment.id} 
+                className="p-6 shadow-soft hover:shadow-authentic transition-all duration-300 animate-fade-in group"
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
                 {/* User Header */}
                 <div className="flex items-center gap-3 mb-4">
-                  <Avatar className="w-10 h-10">
+                  <Avatar className="w-10 h-10 ring-2 ring-background group-hover:ring-primary/20 transition-all duration-300">
                     <AvatarImage src={moment.profiles?.avatar_url || ''} />
                     <AvatarFallback className="bg-gradient-authentic text-white font-semibold">
                       {getInitials(moment.profiles?.display_name)}
@@ -107,12 +138,12 @@ const MomentsFeed = () => {
 
                 {/* Media */}
                 {moment.media_url && (
-                  <div className="aspect-square rounded-xl overflow-hidden mb-4 bg-muted">
+                  <div className="aspect-square rounded-xl overflow-hidden mb-4 bg-muted group-hover:shadow-lg transition-all duration-300">
                     {moment.media_type === 'image' ? (
                       <img 
                         src={moment.media_url} 
                         alt="Authentic moment" 
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
                         loading="lazy"
                       />
                     ) : moment.media_type === 'video' ? (

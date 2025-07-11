@@ -13,23 +13,23 @@ const Hero = () => {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center bg-gradient-natural">
-      <div className="container mx-auto px-4 py-16">
+    <section className="relative min-h-screen flex items-center bg-gradient-natural overflow-hidden">
+      <div className="container mx-auto px-4 py-16 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Content */}
-          <div className="text-center lg:text-left space-y-8">
-            <div className="space-y-4">
-              <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium">
-                <Clock className="w-4 h-4" />
+          <div className="text-center lg:text-left space-y-8 animate-fade-in">
+            <div className="space-y-6">
+              <div className="inline-flex items-center gap-2 bg-primary/15 text-primary px-4 py-2 rounded-full text-sm font-medium border border-primary/20 backdrop-blur-sm">
+                <Clock className="w-4 h-4 animate-pulse" />
                 60 seconds to authenticity
               </div>
               
-              <h1 className="text-4xl md:text-6xl font-bold text-foreground leading-tight">
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground leading-tight">
                 Authentic
-                <span className="bg-gradient-authentic bg-clip-text text-transparent"> Moments</span>
+                <span className="bg-gradient-authentic bg-clip-text text-transparent block lg:inline"> Moments</span>
               </h1>
               
-              <p className="text-xl text-muted-foreground max-w-lg">
+              <p className="text-lg md:text-xl text-muted-foreground max-w-lg mx-auto lg:mx-0 leading-relaxed">
                 The only place you can't fake it. 60 seconds from capture to share on Bluesky. 
                 No edits, no filters, no retakes - just pure, unfiltered authenticity.
               </p>
@@ -37,61 +37,88 @@ const Hero = () => {
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               {user ? (
-                <Button asChild variant="authentic" size="lg" className="gap-2">
+                <Button 
+                  asChild 
+                  variant="authentic" 
+                  size="lg" 
+                  className="gap-2 group hover:scale-105 transition-transform duration-200"
+                >
                   <Link to="/capture">
-                    <Camera className="w-5 h-5" />
+                    <Camera className="w-5 h-5 group-hover:rotate-6 transition-transform duration-200" />
                     Capture Your Moment
                   </Link>
                 </Button>
               ) : (
-                <Button asChild variant="authentic" size="lg" className="gap-2">
+                <Button 
+                  asChild 
+                  variant="authentic" 
+                  size="lg" 
+                  className="gap-2 group hover:scale-105 transition-transform duration-200"
+                >
                   <Link to="/auth">
-                    <Camera className="w-5 h-5" />
+                    <Camera className="w-5 h-5 group-hover:rotate-6 transition-transform duration-200" />
                     Start Your First Moment
                   </Link>
                 </Button>
               )}
               
-              <Button variant="bluesky" size="lg" onClick={handleBlueskyConnect}>
+              <Button 
+                variant="bluesky" 
+                size="lg" 
+                onClick={handleBlueskyConnect}
+                className="hover:scale-105 transition-transform duration-200"
+              >
                 Connect with Bluesky
               </Button>
             </div>
 
-            <div className="flex items-center gap-8 text-sm text-muted-foreground justify-center lg:justify-start">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-secondary rounded-full"></div>
-                No filters, no retakes
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-muted-foreground justify-center lg:justify-start max-w-md mx-auto lg:mx-0">
+              <div className="flex items-center gap-2 bg-background/50 px-3 py-2 rounded-full backdrop-blur-sm border border-border/30">
+                <div className="w-2 h-2 bg-secondary rounded-full animate-pulse"></div>
+                <span>No filters</span>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-secondary rounded-full"></div>
-                Auto-posts to Bluesky
+              <div className="flex items-center gap-2 bg-background/50 px-3 py-2 rounded-full backdrop-blur-sm border border-border/30">
+                <div className="w-2 h-2 bg-accent rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+                <span>Auto-posts</span>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-secondary rounded-full"></div>
-                One chance only
+              <div className="flex items-center gap-2 bg-background/50 px-3 py-2 rounded-full backdrop-blur-sm border border-border/30">
+                <div className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
+                <span>One chance</span>
               </div>
             </div>
           </div>
 
           {/* Hero Image */}
-          <div className="relative">
-            <div className="relative rounded-2xl overflow-hidden shadow-authentic">
+          <div className="relative animate-fade-in" style={{ animationDelay: '0.3s' }}>
+            <div className="relative rounded-2xl overflow-hidden shadow-authentic hover:shadow-lg transition-all duration-500 group">
               <img 
                 src={heroImage} 
                 alt="Authentic moment - unfiltered, natural photography"
-                className="w-full h-auto object-cover"
+                className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700"
               />
               
               {/* Overlay timer mockup */}
-              <div className="absolute top-6 left-6 right-6">
-                <div className="bg-black/70 text-white rounded-full px-6 py-3 flex items-center justify-between backdrop-blur-md">
-                  <span className="text-sm font-medium">Capture your moment</span>
-                  <span className="text-2xl font-bold text-timer">00:47</span>
+              <div className="absolute top-4 left-4 right-4 sm:top-6 sm:left-6 sm:right-6">
+                <div className="bg-black/80 text-white rounded-2xl px-4 py-3 sm:px-6 flex items-center justify-between backdrop-blur-md border border-white/20 shadow-lg">
+                  <span className="text-xs sm:text-sm font-medium">Capture your moment</span>
+                  <span className="text-xl sm:text-2xl font-bold text-timer animate-pulse">00:47</span>
                 </div>
               </div>
+
+              {/* Corner indicators */}
+              <div className="absolute top-4 left-4 w-3 h-3 border-l-2 border-t-2 border-white/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="absolute top-4 right-4 w-3 h-3 border-r-2 border-t-2 border-white/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="absolute bottom-4 left-4 w-3 h-3 border-l-2 border-b-2 border-white/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="absolute bottom-4 right-4 w-3 h-3 border-r-2 border-b-2 border-white/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </div>
           </div>
         </div>
+      </div>
+      
+      {/* Background decoration */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/5 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-secondary/5 rounded-full blur-3xl"></div>
       </div>
     </section>
   );

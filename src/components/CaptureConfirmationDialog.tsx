@@ -25,37 +25,56 @@ export const CaptureConfirmationDialog = ({
 }: CaptureConfirmationDialogProps) => {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="max-w-md">
+      <AlertDialogContent className="max-w-md bg-background/95 backdrop-blur-md border border-border/50">
         <AlertDialogHeader>
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-destructive/10 rounded-full">
-              <AlertTriangle className="h-5 w-5 text-destructive" />
+            <div className="p-3 bg-gradient-authentic/20 rounded-full">
+              <AlertTriangle className="h-6 w-6 text-primary" />
             </div>
-            <AlertDialogTitle className="text-left">
+            <AlertDialogTitle className="text-left text-xl">
               Ready for Your Authentic Moment?
             </AlertDialogTitle>
           </div>
-          <AlertDialogDescription className="text-left space-y-3">
-            <p>
-              <strong>Important:</strong> Once you start capturing, there's no going back. 
-              No retakes, no do-overs, no second chances.
-            </p>
-            <div className="bg-muted p-3 rounded-md text-sm">
-              <p className="font-medium mb-1">What happens next:</p>
-              <ul className="space-y-1 text-muted-foreground">
-                <li>• You'll have 60 seconds to capture your {captureMode}</li>
-                <li>• Once captured, you can only share or discard</li>
-                <li>• This is your one authentic moment - make it count</li>
+          <AlertDialogDescription className="text-left space-y-4">
+            <div className="p-4 bg-destructive/5 border border-destructive/20 rounded-lg">
+              <p className="font-semibold text-destructive mb-2">⚠️ This is your one chance</p>
+              <p className="text-sm">
+                Once you start capturing, there's no going back. 
+                No retakes, no do-overs, no second chances.
+              </p>
+            </div>
+            
+            <div className="bg-muted/50 p-4 rounded-lg text-sm">
+              <p className="font-medium mb-3 text-foreground">What happens next:</p>
+              <ul className="space-y-2 text-muted-foreground">
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
+                  You'll have exactly 60 seconds to capture your {captureMode}
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
+                  Once captured, you can only share or discard
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
+                  This is your one authentic moment - make it count
+                </li>
               </ul>
             </div>
-            <p className="text-sm font-medium">
+            
+            <p className="text-center font-medium text-foreground">
               Are you ready to capture something real?
             </p>
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Not Yet</AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm} className="bg-primary">
+        <AlertDialogFooter className="gap-3">
+          <AlertDialogCancel className="flex-1">
+            Not Yet
+          </AlertDialogCancel>
+          <AlertDialogAction 
+            onClick={onConfirm} 
+            className="flex-1 bg-gradient-authentic hover:shadow-authentic transition-all duration-300"
+          >
             I'm Ready - Start Timer
           </AlertDialogAction>
         </AlertDialogFooter>

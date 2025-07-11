@@ -15,13 +15,36 @@ export const CameraErrorState = ({
 }: CameraErrorStateProps) => {
   return (
     <div className="min-h-screen bg-card p-4 flex items-center justify-center">
-      <Card className="w-full max-w-md p-6 text-center">
-        <h2 className="text-lg font-semibold mb-4">Camera Error</h2>
-        <p className="text-muted-foreground mb-4">{error}</p>
-        <Button onClick={onRetry} disabled={isRetrying}>
-          <RefreshCw className="w-4 h-4 mr-2" />
-          {isRetrying ? 'Retrying...' : 'Retry Camera'}
-        </Button>
+      <Card className="w-full max-w-md p-8 text-center shadow-authentic">
+        <div className="space-y-6">
+          <div className="mx-auto w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center">
+            <RefreshCw className="w-8 h-8 text-destructive" />
+          </div>
+          
+          <div className="space-y-2">
+            <h2 className="text-xl font-semibold text-destructive">Camera Access Issue</h2>
+            <p className="text-muted-foreground text-sm leading-relaxed">{error}</p>
+          </div>
+          
+          <div className="bg-muted/50 p-4 rounded-lg text-sm text-muted-foreground">
+            <p className="font-medium mb-2">Common solutions:</p>
+            <ul className="text-xs space-y-1 text-left">
+              <li>• Allow camera permissions in your browser</li>
+              <li>• Close other apps using the camera</li>
+              <li>• Try refreshing the page</li>
+            </ul>
+          </div>
+          
+          <Button 
+            onClick={onRetry} 
+            disabled={isRetrying}
+            className="w-full"
+            variant="authentic"
+          >
+            <RefreshCw className={`w-4 h-4 mr-2 ${isRetrying ? 'animate-spin' : ''}`} />
+            {isRetrying ? 'Retrying Camera Access...' : 'Try Again'}
+          </Button>
+        </div>
       </Card>
     </div>
   );
