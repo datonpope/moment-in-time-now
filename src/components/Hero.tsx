@@ -1,12 +1,19 @@
 import { Button } from "@/components/ui/button";
-import { Clock, Camera, Smartphone, Download } from "lucide-react";
+import { Clock, Camera, Smartphone, Download, Users } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Link, useNavigate } from "react-router-dom";
+import { Capacitor } from "@capacitor/core";
+import { useEffect, useState } from "react";
 import heroImage from "@/assets/hero-authentic.jpg";
 
 const Hero = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [isMobileApp, setIsMobileApp] = useState(false);
+
+  useEffect(() => {
+    setIsMobileApp(Capacitor.isNativePlatform());
+  }, []);
 
   const handleBlueskyConnect = () => {
     navigate('/profile?tab=bluesky');
@@ -18,112 +25,181 @@ const Hero = () => {
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Content */}
           <div className="text-center lg:text-left space-y-8 animate-fade-in">
-            <div className="space-y-6">
-              <div className="inline-flex items-center gap-2 bg-primary/15 text-primary px-4 py-2 rounded-full text-sm font-medium border border-primary/20 backdrop-blur-sm">
-                <Smartphone className="w-4 h-4 animate-pulse" />
-                Coming Soon to Mobile
-              </div>
-              
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground leading-tight">
-                Authentic
-                <span className="bg-gradient-authentic bg-clip-text text-transparent block lg:inline"> Moments</span>
-              </h1>
-              
-              <p className="text-lg md:text-xl text-muted-foreground max-w-lg mx-auto lg:mx-0 leading-relaxed">
-                The mobile app that captures real life in 60 seconds. Share authentic moments directly to Bluesky 
-                - no edits, no filters, no second chances. Get ready for the most genuine social experience.
-              </p>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              {/* Web App Preview Button */}
-              {user ? (
-                <Button 
-                  asChild 
-                  variant="authentic" 
-                  size="lg" 
-                  className="gap-2 group hover:scale-105 transition-transform duration-200"
-                >
-                  <Link to="/capture">
-                    <Camera className="w-5 h-5 group-hover:rotate-6 transition-transform duration-200" />
-                    Try Web Preview
-                  </Link>
-                </Button>
-              ) : (
-                <Button 
-                  asChild 
-                  variant="authentic" 
-                  size="lg" 
-                  className="gap-2 group hover:scale-105 transition-transform duration-200"
-                >
-                  <Link to="/auth">
-                    <Camera className="w-5 h-5 group-hover:rotate-6 transition-transform duration-200" />
-                    Try Web Preview
-                  </Link>
-                </Button>
-              )}
-              
-              <Button 
-                variant="bluesky" 
-                size="lg" 
-                onClick={handleBlueskyConnect}
-                className="hover:scale-105 transition-transform duration-200"
-              >
-                Connect with Bluesky
-              </Button>
-            </div>
-
-            {/* App Store Buttons - Coming Soon */}
-            <div className="space-y-4">
-              <p className="text-sm text-muted-foreground text-center lg:text-left">
-                Get notified when the mobile app launches:
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
-                <div className="relative">
+            {isMobileApp ? (
+              // Mobile App Content
+              <div className="space-y-6">
+                <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground leading-tight">
+                  Authentic
+                  <span className="bg-gradient-authentic bg-clip-text text-transparent block lg:inline"> Moments</span>
+                </h1>
+                
+                <p className="text-lg md:text-xl text-muted-foreground max-w-lg mx-auto lg:mx-0 leading-relaxed">
+                  Capture real life in 60 seconds. Share authentic moments directly to Bluesky - no edits, no filters, no second chances.
+                </p>
+                
+                <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                  {user ? (
+                    <Button 
+                      asChild 
+                      variant="authentic" 
+                      size="lg" 
+                      className="gap-2 group hover:scale-105 transition-transform duration-200"
+                    >
+                      <Link to="/capture">
+                        <Camera className="w-5 h-5 group-hover:rotate-6 transition-transform duration-200" />
+                        Capture Moment
+                      </Link>
+                    </Button>
+                  ) : (
+                    <Button 
+                      asChild 
+                      variant="authentic" 
+                      size="lg" 
+                      className="gap-2 group hover:scale-105 transition-transform duration-200"
+                    >
+                      <Link to="/auth">
+                        <Camera className="w-5 h-5 group-hover:rotate-6 transition-transform duration-200" />
+                        Capture Moment
+                      </Link>
+                    </Button>
+                  )}
+                  
                   <Button 
-                    disabled
+                    asChild
                     variant="outline" 
                     size="lg" 
-                    className="gap-2 opacity-60 cursor-not-allowed bg-background/50"
+                    className="gap-2 hover:scale-105 transition-transform duration-200"
                   >
-                    <Download className="w-5 h-5" />
-                    Download on App Store
+                    <Link to="/">
+                      <Users className="w-5 h-5" />
+                      Browse Feed
+                    </Link>
                   </Button>
-                  <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
-                    Soon
-                  </span>
                 </div>
-                <div className="relative">
+                
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-muted-foreground justify-center lg:justify-start max-w-md mx-auto lg:mx-0">
+                  <div className="flex items-center gap-2 bg-background/50 px-3 py-2 rounded-full backdrop-blur-sm border border-border/30">
+                    <div className="w-2 h-2 bg-secondary rounded-full animate-pulse"></div>
+                    <span>No filters</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-background/50 px-3 py-2 rounded-full backdrop-blur-sm border border-border/30">
+                    <div className="w-2 h-2 bg-accent rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+                    <span>Auto-posts</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-background/50 px-3 py-2 rounded-full backdrop-blur-sm border border-border/30">
+                    <div className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
+                    <span>One chance</span>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              // Web Content
+              <div className="space-y-6">
+                <div className="inline-flex items-center gap-2 bg-primary/15 text-primary px-4 py-2 rounded-full text-sm font-medium border border-primary/20 backdrop-blur-sm">
+                  <Smartphone className="w-4 h-4 animate-pulse" />
+                  Coming Soon to Mobile
+                </div>
+                
+                <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground leading-tight">
+                  Authentic
+                  <span className="bg-gradient-authentic bg-clip-text text-transparent block lg:inline"> Moments</span>
+                </h1>
+                
+                <p className="text-lg md:text-xl text-muted-foreground max-w-lg mx-auto lg:mx-0 leading-relaxed">
+                  The mobile app that captures real life in 60 seconds. Share authentic moments directly to Bluesky 
+                  - no edits, no filters, no second chances. Get ready for the most genuine social experience.
+                </p>
+                
+                <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                  {user ? (
+                    <Button 
+                      asChild 
+                      variant="authentic" 
+                      size="lg" 
+                      className="gap-2 group hover:scale-105 transition-transform duration-200"
+                    >
+                      <Link to="/capture">
+                        <Camera className="w-5 h-5 group-hover:rotate-6 transition-transform duration-200" />
+                        Try Web Preview
+                      </Link>
+                    </Button>
+                  ) : (
+                    <Button 
+                      asChild 
+                      variant="authentic" 
+                      size="lg" 
+                      className="gap-2 group hover:scale-105 transition-transform duration-200"
+                    >
+                      <Link to="/auth">
+                        <Camera className="w-5 h-5 group-hover:rotate-6 transition-transform duration-200" />
+                        Try Web Preview
+                      </Link>
+                    </Button>
+                  )}
+                  
                   <Button 
-                    disabled
-                    variant="outline" 
+                    variant="bluesky" 
                     size="lg" 
-                    className="gap-2 opacity-60 cursor-not-allowed bg-background/50"
+                    onClick={handleBlueskyConnect}
+                    className="hover:scale-105 transition-transform duration-200"
                   >
-                    <Download className="w-5 h-5" />
-                    Get it on Google Play
+                    Connect with Bluesky
                   </Button>
-                  <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
-                    Soon
-                  </span>
+                </div>
+
+                {/* App Store Buttons - Coming Soon */}
+                <div className="space-y-4">
+                  <p className="text-sm text-muted-foreground text-center lg:text-left">
+                    Get notified when the mobile app launches:
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+                    <div className="relative">
+                      <Button 
+                        disabled
+                        variant="outline" 
+                        size="lg" 
+                        className="gap-2 opacity-60 cursor-not-allowed bg-background/50"
+                      >
+                        <Download className="w-5 h-5" />
+                        Download on App Store
+                      </Button>
+                      <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                        Soon
+                      </span>
+                    </div>
+                    <div className="relative">
+                      <Button 
+                        disabled
+                        variant="outline" 
+                        size="lg" 
+                        className="gap-2 opacity-60 cursor-not-allowed bg-background/50"
+                      >
+                        <Download className="w-5 h-5" />
+                        Get it on Google Play
+                      </Button>
+                      <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                        Soon
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-muted-foreground justify-center lg:justify-start max-w-md mx-auto lg:mx-0">
+                  <div className="flex items-center gap-2 bg-background/50 px-3 py-2 rounded-full backdrop-blur-sm border border-border/30">
+                    <div className="w-2 h-2 bg-secondary rounded-full animate-pulse"></div>
+                    <span>No filters</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-background/50 px-3 py-2 rounded-full backdrop-blur-sm border border-border/30">
+                    <div className="w-2 h-2 bg-accent rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+                    <span>Auto-posts</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-background/50 px-3 py-2 rounded-full backdrop-blur-sm border border-border/30">
+                    <div className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
+                    <span>One chance</span>
+                  </div>
                 </div>
               </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-muted-foreground justify-center lg:justify-start max-w-md mx-auto lg:mx-0">
-              <div className="flex items-center gap-2 bg-background/50 px-3 py-2 rounded-full backdrop-blur-sm border border-border/30">
-                <div className="w-2 h-2 bg-secondary rounded-full animate-pulse"></div>
-                <span>No filters</span>
-              </div>
-              <div className="flex items-center gap-2 bg-background/50 px-3 py-2 rounded-full backdrop-blur-sm border border-border/30">
-                <div className="w-2 h-2 bg-accent rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
-                <span>Auto-posts</span>
-              </div>
-              <div className="flex items-center gap-2 bg-background/50 px-3 py-2 rounded-full backdrop-blur-sm border border-border/30">
-                <div className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
-                <span>One chance</span>
-              </div>
-            </div>
+            )}
           </div>
 
           {/* Hero Image */}
