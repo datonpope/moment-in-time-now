@@ -14,7 +14,7 @@ interface SEOProps {
 export const SEO = ({
   title = 'Authentic Moments - 60 Seconds to Real',
   description = 'The only place you can\'t fake it. Capture and share authentic moments on Bluesky in 60 seconds - no edits, no filters, just real life.',
-  image = 'https://hjemyrrniopogkbbewnm.supabase.co/storage/v1/object/public/moments/og-image.jpg',
+  image = 'https://authenticmoments.app/og-image.jpg',
   url = window.location.href,
   type = 'website',
   author,
@@ -39,7 +39,12 @@ export const SEO = ({
       name: 'Authentic Moments',
       logo: {
         '@type': 'ImageObject',
-        url: `${window.location.origin}/favicon.ico`
+        url: 'https://authenticmoments.app/favicon.ico'
+      },
+      contactPoint: {
+        '@type': 'ContactPoint',
+        email: 'hello@authenticmoments.app',
+        contactType: 'customer service'
       }
     }
   };

@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'moment-in-time-now',
   webDir: 'dist',
   server: {
-    url: 'https://4c7323b8-fa65-4bdf-8d16-3acf111248a1.lovableproject.com?forceHideBadge=true',
+    url: 'https://authenticmoments.app',
     cleartext: true
   },
   plugins: {

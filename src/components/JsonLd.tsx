@@ -17,11 +17,11 @@ export const createWebsiteSchema = () => ({
   '@type': 'WebSite',
   name: 'Authentic Moments',
   alternateName: 'Authentic Moments - 60 Seconds to Real',
-  url: 'https://hjemyrrniopogkbbewnm.supabase.co',
+  url: 'https://authenticmoments.app',
   description: 'The only place you can\'t fake it. Capture and share authentic moments on Bluesky in 60 seconds - no edits, no filters, just real life.',
   potentialAction: {
     '@type': 'SearchAction',
-    target: 'https://hjemyrrniopogkbbewnm.supabase.co/search?q={search_term_string}',
+    target: 'https://authenticmoments.app/search?q={search_term_string}',
     'query-input': 'required name=search_term_string'
   }
 });
@@ -30,9 +30,14 @@ export const createOrganizationSchema = () => ({
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name: 'Authentic Moments',
-  url: 'https://hjemyrrniopogkbbewnm.supabase.co',
-  logo: 'https://hjemyrrniopogkbbewnm.supabase.co/favicon.ico',
+  url: 'https://authenticmoments.app',
+  logo: 'https://authenticmoments.app/favicon.ico',
   description: 'A platform for sharing authentic, unfiltered moments with the world.',
+  contactPoint: {
+    '@type': 'ContactPoint',
+    email: 'hello@authenticmoments.app',
+    contactType: 'customer service'
+  },
   sameAs: [
     'https://bsky.app/profile/authenticmoments.bsky.social'
   ]
