@@ -1,3 +1,4 @@
+
 import { Heart, Mail, Twitter } from "lucide-react";
 
 export const Footer = () => {
@@ -79,7 +80,7 @@ export const Footer = () => {
         <div className="mt-8 pt-8 border-t border-border/40">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             <p className="text-sm text-muted-foreground">
-              © 2025 Authentic Moments. Made with{" "}
+              © 2025 Authentic Moments Digital LLC. Made with{" "}
               <Heart className="h-4 w-4 inline text-red-500" /> for authentic connections.
             </p>
             <div className="flex gap-6 text-sm">
