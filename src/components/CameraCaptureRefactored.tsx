@@ -15,7 +15,19 @@ const CameraCaptureRefactored = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   
-  const { stream, isInitializing, error, facingMode, initCamera, cleanupCamera, retryCamera, toggleCamera } = useCamera();
+  const { 
+    stream, 
+    isInitializing, 
+    error, 
+    facingMode, 
+    isNative, 
+    initCamera, 
+    cleanupCamera, 
+    retryCamera, 
+    toggleCamera,
+    takeNativePhoto 
+  } = useCamera();
+  
   const { createMoment } = useMoments();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -39,6 +51,7 @@ const CameraCaptureRefactored = () => {
     setCanvasRef,
     setCaptureMode,
     capturePhoto,
+    captureNativePhoto,
     startVideoRecording,
     stopVideoRecording,
     resetCapture
@@ -51,18 +64,27 @@ const CameraCaptureRefactored = () => {
       return;
     }
     initCamera(captureMode);
-    // Don't include cleanup function in effect cleanup to avoid infinite loops
-  }, [user, navigate, captureMode]); // Removed initCamera and cleanupCamera from deps
+  }, [user, navigate, captureMode]);
 
   // Separate cleanup effect
   useEffect(() => {
     return cleanupCamera;
   }, []);
 
-  const handleCapture = () => {
+  const handleCapture = async () => {
     if (captureMode === 'photo') {
-      capturePhoto();
+      if (isNative) {
+        // Use native camera for photo capture on mobile
+        const photoDataUrl = await takeNativePhoto();
+        if (photoDataUrl) {
+          await captureNativePhoto(photoDataUrl);
+        }
+      } else {
+        // Use web camera for photo capture
+        capturePhoto();
+      }
     } else {
+      // Video recording (same for both native and web)
       if (isRecording) {
         stopVideoRecording();
       } else {
@@ -159,6 +181,7 @@ const CameraCaptureRefactored = () => {
       isRecording={isRecording}
       captureMode={captureMode}
       facingMode={facingMode}
+      isNative={isNative}
       showConfirmDialog={showConfirmDialog}
       getTimerColor={getTimerColor}
       formatTime={formatTime}

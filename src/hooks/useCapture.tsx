@@ -10,6 +10,7 @@ interface UseCaptureReturn {
   setCanvasRef: (ref: HTMLCanvasElement | null) => void;
   setCaptureMode: (mode: 'photo' | 'video') => void;
   capturePhoto: () => Promise<void>;
+  captureNativePhoto: (dataUrl: string) => Promise<void>;
   startVideoRecording: (stream: MediaStream) => void;
   stopVideoRecording: () => void;
   resetCapture: () => void;
@@ -52,6 +53,20 @@ export const useCapture = (): UseCaptureReturn => {
           setCapturedUrl(URL.createObjectURL(blob));
         }
       });
+    }
+  }, []);
+
+  const captureNativePhoto = useCallback(async (dataUrl: string) => {
+    try {
+      // Convert data URL to blob
+      const response = await fetch(dataUrl);
+      const blob = await response.blob();
+      
+      const file = new File([blob], `photo-${Date.now()}.jpg`, { type: 'image/jpeg' });
+      setCapturedMedia(file);
+      setCapturedUrl(dataUrl);
+    } catch (error) {
+      console.error('Error processing native photo:', error);
     }
   }, []);
 
@@ -104,6 +119,7 @@ export const useCapture = (): UseCaptureReturn => {
     setCanvasRef,
     setCaptureMode,
     capturePhoto,
+    captureNativePhoto,
     startVideoRecording,
     stopVideoRecording,
     resetCapture

@@ -1,3 +1,4 @@
+
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
@@ -13,6 +14,9 @@ const config: CapacitorConfig = {
       launchShowDuration: 2000,
       backgroundColor: '#000000',
       showSpinner: false
+    },
+    Camera: {
+      // Android permissions will be automatically added
     }
   }
 };

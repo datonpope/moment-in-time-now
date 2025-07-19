@@ -1,5 +1,7 @@
+
 import { Card } from '@/components/ui/card';
 import { CameraPreview } from '@/components/camera/CameraPreview';
+import { NativeCameraPreview } from '@/components/camera/NativeCameraPreview';
 import { CameraControls } from '@/components/camera/CameraControls';
 import { CaptureConfirmationDialog } from '@/components/CaptureConfirmationDialog';
 
@@ -10,6 +12,7 @@ interface CameraInterfaceProps {
   isRecording: boolean;
   captureMode: 'photo' | 'video';
   facingMode: 'user' | 'environment';
+  isNative: boolean;
   showConfirmDialog: boolean;
   getTimerColor: () => string;
   formatTime: (seconds: number) => string;
@@ -30,6 +33,7 @@ export const CameraInterface = ({
   isRecording,
   captureMode,
   facingMode,
+  isNative,
   showConfirmDialog,
   getTimerColor,
   formatTime,
@@ -57,11 +61,15 @@ export const CameraInterface = ({
           </div>
 
           {/* Camera Viewfinder */}
-          <CameraPreview
-            stream={stream}
-            onVideoRef={onVideoRef}
-            onCanvasRef={onCanvasRef}
-          />
+          {isNative && captureMode === 'photo' ? (
+            <NativeCameraPreview facingMode={facingMode} />
+          ) : (
+            <CameraPreview
+              stream={stream}
+              onVideoRef={onVideoRef}
+              onCanvasRef={onCanvasRef}
+            />
+          )}
 
           {/* Controls */}
           <CameraControls
@@ -92,6 +100,9 @@ export const CameraInterface = ({
         <div className="text-center mt-6 text-sm text-muted-foreground">
           <p>One authentic moment. No retakes. No filters. No excuses.</p>
           <p className="mt-1">60 seconds to capture something real.</p>
+          {isNative && (
+            <p className="mt-1 text-xs text-primary">Native camera mode active</p>
+          )}
         </div>
 
         {/* Confirmation Dialog */}
