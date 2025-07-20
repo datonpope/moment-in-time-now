@@ -25,7 +25,8 @@ const CameraCaptureRefactored = () => {
     cleanupCamera, 
     retryCamera, 
     toggleCamera,
-    takeNativePhoto 
+    takeNativePhoto,
+    checkCameraPermissions 
   } = useCamera();
   
   const { createMoment } = useMoments();
@@ -63,8 +64,17 @@ const CameraCaptureRefactored = () => {
       navigate('/auth');
       return;
     }
-    initCamera(captureMode);
-  }, [user, navigate, captureMode]);
+    
+    const initialize = async () => {
+      try {
+        await initCamera(captureMode);
+      } catch (error) {
+        console.error('Failed to initialize camera:', error);
+      }
+    };
+    
+    initialize();
+  }, [user, navigate, captureMode, initCamera]);
 
   // Separate cleanup effect
   useEffect(() => {

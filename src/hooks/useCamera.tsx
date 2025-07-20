@@ -15,6 +15,7 @@ interface UseCameraReturn {
   retryCamera: () => Promise<void>;
   toggleCamera: () => Promise<void>;
   takeNativePhoto: () => Promise<string | null>;
+  checkCameraPermissions: () => Promise<boolean>;
 }
 
 export const useCamera = (): UseCameraReturn => {
@@ -38,11 +39,40 @@ export const useCamera = (): UseCameraReturn => {
     setError(null);
   }, [stream]);
 
+  const checkCameraPermissions = useCallback(async (): Promise<boolean> => {
+    if (!isNative) return true;
+
+    try {
+      const permissions = await Camera.checkPermissions();
+      console.log('Camera permissions:', permissions);
+      
+      if (permissions.camera === 'granted') {
+        return true;
+      }
+      
+      if (permissions.camera === 'prompt' || permissions.camera === 'prompt-with-rationale') {
+        const requestResult = await Camera.requestPermissions();
+        return requestResult.camera === 'granted';
+      }
+      
+      return false;
+    } catch (err) {
+      console.error('Permission check failed:', err);
+      return false;
+    }
+  }, [isNative]);
+
   const takeNativePhoto = useCallback(async (): Promise<string | null> => {
     if (!isNative) return null;
 
     try {
       console.log('Taking native photo with camera direction:', facingMode === 'user' ? 'FRONT' : 'REAR');
+      
+      // Check permissions before taking photo
+      const hasPermission = await checkCameraPermissions();
+      if (!hasPermission) {
+        throw new Error('Camera permission denied. Please enable camera access in your device settings.');
+      }
       
       const image = await Camera.getPhoto({
         quality: 90,
@@ -66,7 +96,7 @@ export const useCamera = (): UseCameraReturn => {
       
       return null;
     }
-  }, [isNative, facingMode, toast]);
+  }, [isNative, facingMode, toast, checkCameraPermissions]);
 
   const initCamera = useCallback(async (captureMode: 'photo' | 'video') => {
     console.log('Initializing camera for mode:', captureMode, 'isNative:', isNative);
@@ -81,14 +111,21 @@ export const useCamera = (): UseCameraReturn => {
     setLastCaptureMode(captureMode);
 
     try {
-      // For native platforms, we don't need to initialize a stream for photos
-      // We'll use the native camera API directly when capturing
-      if (isNative && captureMode === 'photo') {
-        console.log('Native photo mode - no stream initialization needed');
-        setStream(null);
-        setError(null);
-        setIsInitializing(false);
-        return;
+      // For native platforms, check permissions first
+      if (isNative) {
+        const hasPermission = await checkCameraPermissions();
+        if (!hasPermission) {
+          throw new Error('Camera permission denied. Please enable camera access in your device settings.');
+        }
+        
+        // For native photo mode, we don't need a stream
+        if (captureMode === 'photo') {
+          console.log('Native photo mode - permissions checked, ready for capture');
+          setStream(null);
+          setError(null);
+          setIsInitializing(false);
+          return;
+        }
       }
 
       // For web or native video, use web APIs
@@ -129,7 +166,7 @@ export const useCamera = (): UseCameraReturn => {
     } finally {
       setIsInitializing(false);
     }
-  }, [toast, stream, isInitializing, facingMode, isNative]);
+  }, [toast, stream, isInitializing, facingMode, isNative, checkCameraPermissions]);
 
   const toggleCamera = useCallback(async () => {
     const newFacingMode = facingMode === 'user' ? 'environment' : 'user';
@@ -167,7 +204,8 @@ export const useCamera = (): UseCameraReturn => {
     cleanupCamera,
     retryCamera,
     toggleCamera,
-    takeNativePhoto
+    takeNativePhoto,
+    checkCameraPermissions
   };
 };
 
