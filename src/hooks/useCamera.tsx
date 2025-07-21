@@ -3,7 +3,6 @@ import { useState, useCallback, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Camera, CameraResultType, CameraSource, CameraDirection } from '@capacitor/camera';
 import { Capacitor } from '@capacitor/core';
-import { VideoRecorder } from '@capacitor-community/video-recorder';
 
 interface UseCameraReturn {
   stream: MediaStream | null;
@@ -63,32 +62,6 @@ export const useCamera = (): UseCameraReturn => {
     }
   }, [isNative]);
 
-  const checkVideoPermissions = useCallback(async (): Promise<boolean> => {
-    if (!isNative) return true;
-
-    // For video recording on native, we rely on the VideoRecorder plugin
-    // to handle permissions internally during initialize()
-    try {
-      // Check camera permission using Capacitor Camera plugin
-      const cameraPermissions = await Camera.checkPermissions();
-      console.log('Camera permissions for video:', cameraPermissions);
-      
-      if (cameraPermissions.camera === 'granted') {
-        return true;
-      }
-      
-      if (cameraPermissions.camera === 'prompt' || cameraPermissions.camera === 'prompt-with-rationale') {
-        const requestResult = await Camera.requestPermissions();
-        return requestResult.camera === 'granted';
-      }
-      
-      return false;
-    } catch (err) {
-      console.error('Video permission check failed:', err);
-      return false;
-    }
-  }, [isNative]);
-
   const takeNativePhoto = useCallback(async (): Promise<string | null> => {
     if (!isNative) return null;
 
@@ -140,24 +113,18 @@ export const useCamera = (): UseCameraReturn => {
     try {
       // For native platforms, check permissions first
       if (isNative) {
+        const hasPermission = await checkCameraPermissions();
+        if (!hasPermission) {
+          throw new Error('Camera permission denied. Please enable camera access in your device settings.');
+        }
+        
         if (captureMode === 'photo') {
-          const hasPermission = await checkCameraPermissions();
-          if (!hasPermission) {
-            throw new Error('Camera permission denied. Please enable camera access in your device settings.');
-          }
-          
           console.log('Native photo mode - permissions checked, ready for capture');
           setStream(null);
           setError(null);
           setIsInitializing(false);
           return;
         } else {
-          // For video, check both camera and microphone permissions
-          const hasPermission = await checkVideoPermissions();
-          if (!hasPermission) {
-            throw new Error('Camera and microphone permissions denied. Please enable access in your device settings.');
-          }
-          
           console.log('Native video mode - permissions checked, ready for recording');
           setStream(null);
           setError(null);
@@ -166,7 +133,7 @@ export const useCamera = (): UseCameraReturn => {
         }
       }
 
-      // For web or when native video needs a stream for preview, use web APIs
+      // For web, use web APIs
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         throw new Error('Camera not supported by this browser');
       }
@@ -204,7 +171,7 @@ export const useCamera = (): UseCameraReturn => {
     } finally {
       setIsInitializing(false);
     }
-  }, [toast, stream, isInitializing, facingMode, isNative, checkCameraPermissions, checkVideoPermissions]);
+  }, [toast, stream, isInitializing, facingMode, isNative, checkCameraPermissions]);
 
   const toggleCamera = useCallback(async () => {
     const newFacingMode = facingMode === 'user' ? 'environment' : 'user';

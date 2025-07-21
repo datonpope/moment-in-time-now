@@ -96,27 +96,42 @@ const CameraCaptureRefactored = () => {
       }
     } else {
       // Video recording
-      if (isRecording) {
+      if (isNative) {
+        // For native video, start recording immediately opens the camera
         try {
-          await stopVideoRecording();
+          await startVideoRecording();
         } catch (error) {
-          console.error('Error stopping video recording:', error);
+          console.error('Error with native video recording:', error);
           toast({
             title: "Video Recording Error",
-            description: "Failed to stop video recording. Please try again.",
+            description: "Failed to open native camera for video recording. Please try again.",
             variant: "destructive",
           });
         }
       } else {
-        try {
-          await startVideoRecording(stream || undefined);
-        } catch (error) {
-          console.error('Error starting video recording:', error);
-          toast({
-            title: "Video Recording Error",
-            description: "Failed to start video recording. Please check your permissions and try again.",
-            variant: "destructive",
-          });
+        // For web, use the traditional record/stop pattern
+        if (isRecording) {
+          try {
+            await stopVideoRecording();
+          } catch (error) {
+            console.error('Error stopping video recording:', error);
+            toast({
+              title: "Video Recording Error",
+              description: "Failed to stop video recording. Please try again.",
+              variant: "destructive",
+            });
+          }
+        } else {
+          try {
+            await startVideoRecording(stream || undefined);
+          } catch (error) {
+            console.error('Error starting video recording:', error);
+            toast({
+              title: "Video Recording Error",
+              description: "Failed to start video recording. Please check your permissions and try again.",
+              variant: "destructive",
+            });
+          }
         }
       }
     }
@@ -166,8 +181,8 @@ const CameraCaptureRefactored = () => {
     setShowConfirmDialog(false);
     startTimer();
     
-    // Auto-start video recording when timer starts for video mode
-    if (captureMode === 'video') {
+    // For web video mode, auto-start recording when timer starts
+    if (captureMode === 'video' && !isNative) {
       try {
         await startVideoRecording(stream || undefined);
       } catch (error) {

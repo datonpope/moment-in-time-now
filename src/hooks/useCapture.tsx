@@ -1,7 +1,7 @@
 
 import { useState, useRef, useCallback } from 'react';
 import { Capacitor } from '@capacitor/core';
-import { VideoRecorder } from '@capacitor-community/video-recorder';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 
 interface UseCaptureReturn {
   isRecording: boolean;
@@ -76,19 +76,31 @@ export const useCapture = (): UseCaptureReturn => {
 
   const startVideoRecording = useCallback(async (stream?: MediaStream) => {
     if (isNative) {
-      // Use native video recorder for mobile
+      // Use native camera for video recording on mobile
       try {
-        console.log('Starting native video recording...');
+        console.log('Starting native video recording using Camera plugin...');
         
-        // VideoRecorder plugin handles permissions internally during initialize()
-        console.log('Native video recording - permissions will be handled by plugin');
+        const video = await Camera.getPhoto({
+          quality: 90,
+          allowEditing: false,
+          resultType: CameraResultType.Uri,
+          source: CameraSource.Camera,
+        });
 
-        await VideoRecorder.initialize();
-        await VideoRecorder.startRecording();
-        setIsRecording(true);
-        console.log('Native video recording started successfully');
+        if (video.webPath) {
+          // Convert the video URI to a File object
+          const response = await fetch(video.webPath);
+          const blob = await response.blob();
+          const file = new File([blob], `video-${Date.now()}.mp4`, { type: 'video/mp4' });
+          setCapturedMedia(file);
+          setCapturedUrl(video.webPath);
+        }
+        
+        setIsRecording(false);
+        console.log('Native video recording completed successfully');
       } catch (error) {
         console.error('Native video recording failed:', error);
+        setIsRecording(false);
         throw error;
       }
     } else {
@@ -124,28 +136,9 @@ export const useCapture = (): UseCaptureReturn => {
 
   const stopVideoRecording = useCallback(async () => {
     if (isNative) {
-      // Stop native video recording
-      try {
-        console.log('Stopping native video recording...');
-        const result = await VideoRecorder.stopRecording();
-        console.log('Native video recording stopped:', result);
-        
-        if (result.videoUrl) {
-          // Convert the video URL to a File object
-          const response = await fetch(result.videoUrl);
-          const blob = await response.blob();
-          const file = new File([blob], `video-${Date.now()}.mp4`, { type: 'video/mp4' });
-          setCapturedMedia(file);
-          setCapturedUrl(result.videoUrl);
-        }
-        
-        setIsRecording(false);
-        await VideoRecorder.destroy();
-        console.log('Native video recording completed successfully');
-      } catch (error) {
-        console.error('Error stopping native video recording:', error);
-        setIsRecording(false);
-      }
+      // For native, the recording is handled in startVideoRecording
+      // This method is called but doesn't need to do anything
+      console.log('Native video recording - stop called but recording already completed');
     } else {
       // Stop web MediaRecorder
       if (mediaRecorder && isRecording) {
