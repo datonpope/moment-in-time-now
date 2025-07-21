@@ -66,18 +66,20 @@ export const useCamera = (): UseCameraReturn => {
   const checkVideoPermissions = useCallback(async (): Promise<boolean> => {
     if (!isNative) return true;
 
+    // For video recording on native, we rely on the VideoRecorder plugin
+    // to handle permissions internally during initialize()
     try {
-      const permissions = await VideoRecorder.checkPermissions();
-      console.log('Video recorder permissions:', permissions);
+      // Check camera permission using Capacitor Camera plugin
+      const cameraPermissions = await Camera.checkPermissions();
+      console.log('Camera permissions for video:', cameraPermissions);
       
-      if (permissions.camera === 'granted' && permissions.microphone === 'granted') {
+      if (cameraPermissions.camera === 'granted') {
         return true;
       }
       
-      if (permissions.camera === 'prompt' || permissions.microphone === 'prompt' || 
-          permissions.camera === 'prompt-with-rationale' || permissions.microphone === 'prompt-with-rationale') {
-        const requestResult = await VideoRecorder.requestPermissions();
-        return requestResult.camera === 'granted' && requestResult.microphone === 'granted';
+      if (cameraPermissions.camera === 'prompt' || cameraPermissions.camera === 'prompt-with-rationale') {
+        const requestResult = await Camera.requestPermissions();
+        return requestResult.camera === 'granted';
       }
       
       return false;

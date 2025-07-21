@@ -80,16 +80,8 @@ export const useCapture = (): UseCaptureReturn => {
       try {
         console.log('Starting native video recording...');
         
-        // Check permissions first
-        const permissions = await VideoRecorder.checkPermissions();
-        console.log('Video recorder permissions:', permissions);
-        
-        if (permissions.camera !== 'granted' || permissions.microphone !== 'granted') {
-          const requestResult = await VideoRecorder.requestPermissions();
-          if (requestResult.camera !== 'granted' || requestResult.microphone !== 'granted') {
-            throw new Error('Video recording permissions denied');
-          }
-        }
+        // VideoRecorder plugin handles permissions internally during initialize()
+        console.log('Native video recording - permissions will be handled by plugin');
 
         await VideoRecorder.initialize();
         await VideoRecorder.startRecording();
