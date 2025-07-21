@@ -1,4 +1,7 @@
+
 import { useState, useRef, useCallback } from 'react';
+import { Capacitor } from '@capacitor/core';
+import { VideoRecorder } from '@capacitor-community/video-recorder';
 
 interface UseCaptureReturn {
   isRecording: boolean;
@@ -11,8 +14,8 @@ interface UseCaptureReturn {
   setCaptureMode: (mode: 'photo' | 'video') => void;
   capturePhoto: () => Promise<void>;
   captureNativePhoto: (dataUrl: string) => Promise<void>;
-  startVideoRecording: (stream: MediaStream) => void;
-  stopVideoRecording: () => void;
+  startVideoRecording: (stream?: MediaStream) => Promise<void>;
+  stopVideoRecording: () => Promise<void>;
   resetCapture: () => void;
 }
 
@@ -25,6 +28,7 @@ export const useCapture = (): UseCaptureReturn => {
   
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const isNative = Capacitor.isNativePlatform();
 
   const setVideoRef = useCallback((ref: HTMLVideoElement | null) => {
     videoRef.current = ref;
@@ -70,36 +74,94 @@ export const useCapture = (): UseCaptureReturn => {
     }
   }, []);
 
-  const startVideoRecording = useCallback((stream: MediaStream) => {
-    if (!stream) return;
+  const startVideoRecording = useCallback(async (stream?: MediaStream) => {
+    if (isNative) {
+      // Use native video recorder for mobile
+      try {
+        console.log('Starting native video recording...');
+        
+        // Check permissions first
+        const permissions = await VideoRecorder.checkPermissions();
+        console.log('Video recorder permissions:', permissions);
+        
+        if (permissions.camera !== 'granted' || permissions.microphone !== 'granted') {
+          const requestResult = await VideoRecorder.requestPermissions();
+          if (requestResult.camera !== 'granted' || requestResult.microphone !== 'granted') {
+            throw new Error('Video recording permissions denied');
+          }
+        }
 
-    const recorder = new MediaRecorder(stream);
-    const chunks: Blob[] = [];
-
-    recorder.ondataavailable = (event) => {
-      if (event.data.size > 0) {
-        chunks.push(event.data);
+        await VideoRecorder.initialize();
+        await VideoRecorder.startRecording();
+        setIsRecording(true);
+        console.log('Native video recording started successfully');
+      } catch (error) {
+        console.error('Native video recording failed:', error);
+        throw error;
       }
-    };
+    } else {
+      // Use web MediaRecorder for desktop
+      if (!stream) {
+        console.error('No stream provided for web video recording');
+        return;
+      }
 
-    recorder.onstop = () => {
-      const blob = new Blob(chunks, { type: 'video/webm' });
-      const file = new File([blob], `video-${Date.now()}.webm`, { type: 'video/webm' });
-      setCapturedMedia(file);
-      setCapturedUrl(URL.createObjectURL(blob));
-      setIsRecording(false);
-    };
+      const recorder = new MediaRecorder(stream);
+      const chunks: Blob[] = [];
 
-    recorder.start();
-    setMediaRecorder(recorder);
-    setIsRecording(true);
-  }, []);
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          chunks.push(event.data);
+        }
+      };
 
-  const stopVideoRecording = useCallback(() => {
-    if (mediaRecorder && isRecording) {
-      mediaRecorder.stop();
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: 'video/webm' });
+        const file = new File([blob], `video-${Date.now()}.webm`, { type: 'video/webm' });
+        setCapturedMedia(file);
+        setCapturedUrl(URL.createObjectURL(blob));
+        setIsRecording(false);
+      };
+
+      recorder.start();
+      setMediaRecorder(recorder);
+      setIsRecording(true);
+      console.log('Web video recording started successfully');
     }
-  }, [mediaRecorder, isRecording]);
+  }, [isNative]);
+
+  const stopVideoRecording = useCallback(async () => {
+    if (isNative) {
+      // Stop native video recording
+      try {
+        console.log('Stopping native video recording...');
+        const result = await VideoRecorder.stopRecording();
+        console.log('Native video recording stopped:', result);
+        
+        if (result.videoUrl) {
+          // Convert the video URL to a File object
+          const response = await fetch(result.videoUrl);
+          const blob = await response.blob();
+          const file = new File([blob], `video-${Date.now()}.mp4`, { type: 'video/mp4' });
+          setCapturedMedia(file);
+          setCapturedUrl(result.videoUrl);
+        }
+        
+        setIsRecording(false);
+        await VideoRecorder.destroy();
+        console.log('Native video recording completed successfully');
+      } catch (error) {
+        console.error('Error stopping native video recording:', error);
+        setIsRecording(false);
+      }
+    } else {
+      // Stop web MediaRecorder
+      if (mediaRecorder && isRecording) {
+        mediaRecorder.stop();
+        console.log('Web video recording stopped');
+      }
+    }
+  }, [isNative, mediaRecorder, isRecording]);
 
   const resetCapture = useCallback(() => {
     setCapturedMedia(null);

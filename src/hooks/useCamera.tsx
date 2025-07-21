@@ -3,6 +3,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Camera, CameraResultType, CameraSource, CameraDirection } from '@capacitor/camera';
 import { Capacitor } from '@capacitor/core';
+import { VideoRecorder } from '@capacitor-community/video-recorder';
 
 interface UseCameraReturn {
   stream: MediaStream | null;
@@ -62,6 +63,30 @@ export const useCamera = (): UseCameraReturn => {
     }
   }, [isNative]);
 
+  const checkVideoPermissions = useCallback(async (): Promise<boolean> => {
+    if (!isNative) return true;
+
+    try {
+      const permissions = await VideoRecorder.checkPermissions();
+      console.log('Video recorder permissions:', permissions);
+      
+      if (permissions.camera === 'granted' && permissions.microphone === 'granted') {
+        return true;
+      }
+      
+      if (permissions.camera === 'prompt' || permissions.microphone === 'prompt' || 
+          permissions.camera === 'prompt-with-rationale' || permissions.microphone === 'prompt-with-rationale') {
+        const requestResult = await VideoRecorder.requestPermissions();
+        return requestResult.camera === 'granted' && requestResult.microphone === 'granted';
+      }
+      
+      return false;
+    } catch (err) {
+      console.error('Video permission check failed:', err);
+      return false;
+    }
+  }, [isNative]);
+
   const takeNativePhoto = useCallback(async (): Promise<string | null> => {
     if (!isNative) return null;
 
@@ -113,14 +138,25 @@ export const useCamera = (): UseCameraReturn => {
     try {
       // For native platforms, check permissions first
       if (isNative) {
-        const hasPermission = await checkCameraPermissions();
-        if (!hasPermission) {
-          throw new Error('Camera permission denied. Please enable camera access in your device settings.');
-        }
-        
-        // For native photo mode, we don't need a stream
         if (captureMode === 'photo') {
+          const hasPermission = await checkCameraPermissions();
+          if (!hasPermission) {
+            throw new Error('Camera permission denied. Please enable camera access in your device settings.');
+          }
+          
           console.log('Native photo mode - permissions checked, ready for capture');
+          setStream(null);
+          setError(null);
+          setIsInitializing(false);
+          return;
+        } else {
+          // For video, check both camera and microphone permissions
+          const hasPermission = await checkVideoPermissions();
+          if (!hasPermission) {
+            throw new Error('Camera and microphone permissions denied. Please enable access in your device settings.');
+          }
+          
+          console.log('Native video mode - permissions checked, ready for recording');
           setStream(null);
           setError(null);
           setIsInitializing(false);
@@ -128,7 +164,7 @@ export const useCamera = (): UseCameraReturn => {
         }
       }
 
-      // For web or native video, use web APIs
+      // For web or when native video needs a stream for preview, use web APIs
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         throw new Error('Camera not supported by this browser');
       }
@@ -166,20 +202,20 @@ export const useCamera = (): UseCameraReturn => {
     } finally {
       setIsInitializing(false);
     }
-  }, [toast, stream, isInitializing, facingMode, isNative, checkCameraPermissions]);
+  }, [toast, stream, isInitializing, facingMode, isNative, checkCameraPermissions, checkVideoPermissions]);
 
   const toggleCamera = useCallback(async () => {
     const newFacingMode = facingMode === 'user' ? 'environment' : 'user';
     setFacingMode(newFacingMode);
     
-    // For native photo mode, no need to reinitialize stream
-    if (isNative && lastCaptureMode === 'photo') {
-      console.log('Native photo mode - camera direction will be used when taking photo');
+    // For native mode, no need to reinitialize stream
+    if (isNative) {
+      console.log('Native mode - camera direction will be used when capturing');
       return;
     }
     
-    // Reinitialize camera with new facing mode for web or native video
-    if (stream || (!isNative)) {
+    // Reinitialize camera with new facing mode for web
+    if (stream) {
       await initCamera(lastCaptureMode);
     }
   }, [facingMode, stream, lastCaptureMode, initCamera, isNative]);

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { CapturedMediaPreview } from '@/components/camera/CapturedMediaPreview';
 import { CameraLoadingState } from '@/components/camera/CameraLoadingState';
@@ -94,11 +95,29 @@ const CameraCaptureRefactored = () => {
         capturePhoto();
       }
     } else {
-      // Video recording (same for both native and web)
+      // Video recording
       if (isRecording) {
-        stopVideoRecording();
+        try {
+          await stopVideoRecording();
+        } catch (error) {
+          console.error('Error stopping video recording:', error);
+          toast({
+            title: "Video Recording Error",
+            description: "Failed to stop video recording. Please try again.",
+            variant: "destructive",
+          });
+        }
       } else {
-        startVideoRecording(stream!);
+        try {
+          await startVideoRecording(stream || undefined);
+        } catch (error) {
+          console.error('Error starting video recording:', error);
+          toast({
+            title: "Video Recording Error",
+            description: "Failed to start video recording. Please check your permissions and try again.",
+            variant: "destructive",
+          });
+        }
       }
     }
   };
@@ -143,13 +162,22 @@ const CameraCaptureRefactored = () => {
     setShowConfirmDialog(true);
   };
 
-  const handleConfirmCapture = () => {
+  const handleConfirmCapture = async () => {
     setShowConfirmDialog(false);
     startTimer();
     
-    // Auto-start video recording when timer starts (Phase 2 improvement)
-    if (captureMode === 'video' && stream) {
-      startVideoRecording(stream);
+    // Auto-start video recording when timer starts for video mode
+    if (captureMode === 'video') {
+      try {
+        await startVideoRecording(stream || undefined);
+      } catch (error) {
+        console.error('Error auto-starting video recording:', error);
+        toast({
+          title: "Video Recording Error",
+          description: "Failed to start video recording automatically. You can start it manually.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
