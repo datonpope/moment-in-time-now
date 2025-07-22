@@ -1,4 +1,5 @@
-import CameraCaptureRefactored from "@/components/CameraCaptureRefactored";
+
+import MobileCaptureInterface from "@/components/MobileCaptureInterface";
 import Navigation from "@/components/Navigation";
 import { SEO } from "@/components/SEO";
 
@@ -12,7 +13,7 @@ const Capture = () => {
       <div>
         <Navigation />
         <div className="pt-16">
-          <CameraCaptureRefactored />
+          <MobileCaptureInterface />
         </div>
       </div>
     </>

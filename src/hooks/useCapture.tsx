@@ -76,75 +76,52 @@ export const useCapture = (): UseCaptureReturn => {
 
   const startVideoRecording = useCallback(async (stream?: MediaStream) => {
     if (isNative) {
-      // Use native camera for video recording on mobile
-      try {
-        console.log('Starting native video recording using Camera plugin...');
-        
-        const video = await Camera.getPhoto({
-          quality: 90,
-          allowEditing: false,
-          resultType: CameraResultType.Uri,
-          source: CameraSource.Camera,
-        });
-
-        if (video.webPath) {
-          // Convert the video URI to a File object
-          const response = await fetch(video.webPath);
-          const blob = await response.blob();
-          const file = new File([blob], `video-${Date.now()}.mp4`, { type: 'video/mp4' });
-          setCapturedMedia(file);
-          setCapturedUrl(video.webPath);
-        }
-        
-        setIsRecording(false);
-        console.log('Native video recording completed successfully');
-      } catch (error) {
-        console.error('Native video recording failed:', error);
-        setIsRecording(false);
-        throw error;
-      }
-    } else {
-      // Use web MediaRecorder for desktop
-      if (!stream) {
-        console.error('No stream provided for web video recording');
-        return;
-      }
-
-      const recorder = new MediaRecorder(stream);
-      const chunks: Blob[] = [];
-
-      recorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          chunks.push(event.data);
-        }
-      };
-
-      recorder.onstop = () => {
-        const blob = new Blob(chunks, { type: 'video/webm' });
-        const file = new File([blob], `video-${Date.now()}.webm`, { type: 'video/webm' });
-        setCapturedMedia(file);
-        setCapturedUrl(URL.createObjectURL(blob));
-        setIsRecording(false);
-      };
-
-      recorder.start();
-      setMediaRecorder(recorder);
-      setIsRecording(true);
-      console.log('Web video recording started successfully');
+      // Native video recording is now handled by useNativeVideo hook
+      // This method is kept for compatibility but doesn't use Camera.getPhoto anymore
+      console.log('Native video recording should use useNativeVideo hook');
+      return;
     }
+
+    // Web video recording using MediaRecorder
+    if (!stream) {
+      console.error('No stream provided for web video recording');
+      return;
+    }
+
+    const recorder = new MediaRecorder(stream);
+    const chunks: Blob[] = [];
+
+    recorder.ondataavailable = (event) => {
+      if (event.data.size > 0) {
+        chunks.push(event.data);
+      }
+    };
+
+    recorder.onstop = () => {
+      const blob = new Blob(chunks, { type: 'video/webm' });
+      const file = new File([blob], `video-${Date.now()}.webm`, { type: 'video/webm' });
+      setCapturedMedia(file);
+      setCapturedUrl(URL.createObjectURL(blob));
+      setIsRecording(false);
+    };
+
+    recorder.start();
+    setMediaRecorder(recorder);
+    setIsRecording(true);
+    console.log('Web video recording started successfully');
   }, [isNative]);
 
   const stopVideoRecording = useCallback(async () => {
     if (isNative) {
-      // For native, the recording is handled in startVideoRecording
-      // This method is called but doesn't need to do anything
-      console.log('Native video recording - stop called but recording already completed');
-    } else {
-      // Stop web MediaRecorder
-      if (mediaRecorder && isRecording) {
-        mediaRecorder.stop();
-        console.log('Web video recording stopped');
-      }
+      // Native video recording stop is handled by useNativeVideo hook
+      console.log('Native video recording stop should use useNativeVideo hook');
+      return;
+    }
+
+    // Stop web MediaRecorder
+    if (mediaRecorder && isRecording) {
+      mediaRecorder.stop();
+      console.log('Web video recording stopped');
     }
   }, [isNative, mediaRecorder, isRecording]);
 
