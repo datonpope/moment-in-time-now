@@ -1,7 +1,5 @@
-
 import { useState, useCallback } from 'react';
 import { Capacitor } from '@capacitor/core';
-import { Device } from '@capacitor/device';
 import { Browser } from '@capacitor/browser';
 import { useToast } from '@/hooks/use-toast';
 
@@ -29,13 +27,13 @@ export const useNativeVideo = (): UseNativeVideoReturn => {
       setIsRecording(true);
       console.log('Opening native video camera...');
 
-      const info = await Device.getInfo();
+      const platform = Capacitor.getPlatform();
       
-      if (info.platform === 'android') {
+      if (platform === 'android') {
         // Android camera intent for video recording
-        const videoIntent = 'intent://photo#Intent;scheme=android.media.action.VIDEO_CAPTURE;package=com.android.camera;end';
+        const videoIntent = 'intent:#Intent;action=android.media.action.VIDEO_CAPTURE;end';
         await Browser.open({ url: videoIntent });
-      } else if (info.platform === 'ios') {
+      } else if (platform === 'ios') {
         // iOS camera app with video mode (limited control)
         await Browser.open({ url: 'camera://' });
       }
