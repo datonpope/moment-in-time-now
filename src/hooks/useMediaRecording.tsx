@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { Capacitor } from '@capacitor/core';
-import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { VideoRecorder } from '@capacitor-community/video-recorder';
 import { useToast } from '@/hooks/use-toast';
 
 interface UseMediaRecordingReturn {
@@ -27,19 +27,25 @@ export const useMediaRecording = (): UseMediaRecordingReturn => {
       setIsRecording(true);
       console.log('Starting video recording...');
 
-      // For now, use a fallback approach for video recording on native
-      // This will need to be replaced with a proper video recording plugin
-      toast({
-        title: "Video Recording",
-        description: "Native video recording is being implemented. Using web fallback for now.",
-        variant: "default",
+      await VideoRecorder.initialize();
+      await VideoRecorder.startRecording();
+      
+      // Let it record for up to 60 seconds
+      return new Promise((resolve) => {
+        setTimeout(async () => {
+          try {
+            const result = await VideoRecorder.stopRecording();
+            console.log('Video recorded:', result);
+            resolve(result.videoUrl || null);
+          } catch (error) {
+            console.error('Stop recording failed:', error);
+            resolve(null);
+          }
+        }, 60000);
       });
       
-      // Return null to indicate native video recording is not yet available
-      return null;
-      
     } catch (error) {
-      console.error('Failed to record video:', error);
+      console.error('Recording failed:', error);
       
       toast({
         title: "Recording Error",
