@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useMoments } from '@/hooks/useMoments';
 import { useTimer } from '@/hooks/useTimer';
-import { useNativeVideo } from '@/hooks/useNativeVideo';
+import { useMediaRecording } from '@/hooks/useMediaRecording';
 import { useCapture } from '@/hooks/useCapture';
 import { useCamera } from '@/hooks/useCamera';
 import { useToast } from '@/hooks/use-toast';
@@ -31,7 +31,7 @@ const MobileCaptureInterface = () => {
     formatTime 
   } = useTimer(60);
   
-  const { isRecording, openNativeVideoCamera, resetRecording } = useNativeVideo();
+  const { recordVideo, isRecording, resetRecording } = useMediaRecording();
   
   const {
     capturedMedia,
@@ -58,22 +58,17 @@ const MobileCaptureInterface = () => {
   };
 
   const handleVideoCapture = async () => {
-    if (!isNative) {
-      toast({
-        title: "Mobile App Required",
-        description: "Video recording requires the mobile app.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     try {
-      await openNativeVideoCamera();
+      const videoPath = await recordVideo();
+      if (videoPath) {
+        console.log('Video recorded at:', videoPath);
+        // Handle successful video recording
+      }
     } catch (error) {
-      console.error('Error starting native video capture:', error);
+      console.error('Video capture failed:', error);
       toast({
-        title: "Camera Error",
-        description: "Failed to open camera. Please try again.",
+        title: "Video Capture Failed",
+        description: "Unable to access camera for video recording",
         variant: "destructive",
       });
     }

@@ -76,9 +76,9 @@ export const useCapture = (): UseCaptureReturn => {
 
   const startVideoRecording = useCallback(async (stream?: MediaStream) => {
     if (isNative) {
-      // Native video recording is now handled by useNativeVideo hook
+      // Native video recording is now handled by useMediaRecording hook
       // This method is kept for compatibility but doesn't use Camera.getPhoto anymore
-      console.log('Native video recording should use useNativeVideo hook');
+      console.log('Native video recording should use useMediaRecording hook');
       return;
     }
 
@@ -113,8 +113,8 @@ export const useCapture = (): UseCaptureReturn => {
 
   const stopVideoRecording = useCallback(async () => {
     if (isNative) {
-      // Native video recording stop is handled by useNativeVideo hook
-      console.log('Native video recording stop should use useNativeVideo hook');
+      // Native video recording stop is handled by useMediaRecording hook
+      console.log('Native video recording stop should use useMediaRecording hook');
       return;
     }
 
