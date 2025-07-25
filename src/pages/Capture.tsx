@@ -1,5 +1,5 @@
 
-import MobileCaptureInterface from "@/components/MobileCaptureInterface";
+import NativeCaptureInterface from "@/components/NativeCaptureInterface";
 import Navigation from "@/components/Navigation";
 import { SEO } from "@/components/SEO";
 
@@ -13,7 +13,7 @@ const Capture = () => {
       <div>
         <Navigation />
         <div className="pt-16">
-          <MobileCaptureInterface />
+          <NativeCaptureInterface />
         </div>
       </div>
     </>
