@@ -10,7 +10,7 @@ import { Card } from '@/components/ui/card';
 import { NativeCameraPreview } from '@/components/camera/NativeCameraPreview';
 import { CaptureConfirmationDialog } from '@/components/CaptureConfirmationDialog';
 import { Progress } from '@/components/ui/progress';
-import { Camera, Video, Square, Play, RotateCcw } from 'lucide-react';
+import { Camera, Video, Square, Play, RotateCcw, X } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 
 export default function NativeCaptureInterface() {
@@ -21,7 +21,7 @@ export default function NativeCaptureInterface() {
 
   const { user } = useAuth();
   const { createMoment } = useMoments();
-  const { timeLeft, isActive, startTimer, resetTimer, formatTime, getTimerColor } = useTimer();
+  const { timeLeft, isActive, startTimer, stopTimer, resetTimer, formatTime, getTimerColor } = useTimer();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -147,6 +147,17 @@ export default function NativeCaptureInterface() {
 
   const handleDiscard = () => {
     setCapturedMedia(null);
+    resetTimer();
+  };
+
+  const handleStopCapture = async () => {
+    stopTimer();
+    
+    // If recording video, stop the recording
+    if (captureMode === 'video' && isRecording) {
+      await stopVideoRecording();
+    }
+    
     resetTimer();
   };
 
@@ -305,18 +316,29 @@ export default function NativeCaptureInterface() {
               <Play className="w-8 h-8" />
             </Button>
           ) : (
-            <Button
-              variant="timer"
-              size="icon"
-              className="w-16 h-16 rounded-full"
-              onClick={handleCapture}
-            >
-              {captureMode === 'video' && isRecording ? (
-                <Square className="w-8 h-8" />
-              ) : (
-                <Camera className="w-8 h-8" />
-              )}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="destructive"
+                size="icon"
+                className="w-12 h-12 rounded-full"
+                onClick={handleStopCapture}
+                title="Stop and cancel capture"
+              >
+                <X className="w-6 h-6" />
+              </Button>
+              <Button
+                variant="timer"
+                size="icon"
+                className="w-16 h-16 rounded-full"
+                onClick={handleCapture}
+              >
+                {captureMode === 'video' && isRecording ? (
+                  <Square className="w-8 h-8" />
+                ) : (
+                  <Camera className="w-8 h-8" />
+                )}
+              </Button>
+            </div>
           )}
 
           {/* Camera Flip Button */}

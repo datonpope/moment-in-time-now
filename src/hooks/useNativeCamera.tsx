@@ -33,14 +33,41 @@ export const useNativeCamera = (): UseNativeCameraReturn => {
     try {
       setError(null);
       
-      // Initialize video recorder
+      // Check camera permissions first
+      const permissions = await Camera.checkPermissions();
+      console.log('Camera permissions status:', permissions);
+      
+      if (permissions.camera !== 'granted') {
+        console.log('Requesting camera permissions...');
+        const requestResult = await Camera.requestPermissions();
+        
+        if (requestResult.camera !== 'granted') {
+          setError('Camera permission denied. Please enable camera access in your device settings.');
+          
+          toast({
+            title: "Permission Required",
+            description: "Camera access is required to capture moments. Please enable it in your device settings.",
+            variant: "destructive",
+          });
+          return;
+        }
+      }
+      
+      // Initialize video recorder after permissions are granted
       await VideoRecorder.initialize();
       setIsInitialized(true);
       
-      console.log('Native camera initialized successfully');
+      console.log('Native camera initialized successfully with permissions');
+      
+      toast({
+        title: "Camera Ready",
+        description: "Your camera is ready to capture authentic moments!",
+        variant: "default",
+      });
+      
     } catch (error) {
       console.error('Camera initialization failed:', error);
-      setError('Failed to initialize camera. Please check permissions.');
+      setError('Failed to initialize camera. Please check permissions and try again.');
       
       toast({
         title: "Camera Error",
@@ -57,6 +84,15 @@ export const useNativeCamera = (): UseNativeCameraReturn => {
     }
 
     try {
+      // Ensure permissions are still valid
+      const permissions = await Camera.checkPermissions();
+      if (permissions.camera !== 'granted') {
+        setError('Camera permission is required to capture photos');
+        return null;
+      }
+
+      console.log('Opening native camera for photo capture...');
+      
       const image = await Camera.getPhoto({
         quality: 90,
         allowEditing: false,
@@ -65,9 +101,20 @@ export const useNativeCamera = (): UseNativeCameraReturn => {
         direction: facingMode === 'user' ? CameraDirection.Front : CameraDirection.Rear,
       });
 
+      console.log('Photo captured successfully');
       return image.dataUrl || null;
+      
     } catch (error) {
       console.error('Photo capture failed:', error);
+      
+      if (error && typeof error === 'object' && 'message' in error) {
+        const errorMessage = (error as any).message;
+        if (errorMessage.includes('cancelled') || errorMessage.includes('canceled')) {
+          console.log('Photo capture was cancelled by user');
+          return null; // Don't show error toast for user cancellation
+        }
+      }
+      
       setError('Failed to capture photo');
       
       toast({
@@ -91,11 +138,21 @@ export const useNativeCamera = (): UseNativeCameraReturn => {
     }
 
     try {
+      // Double-check permissions before recording
+      const permissions = await Camera.checkPermissions();
+      if (permissions.camera !== 'granted') {
+        setError('Camera permission is required for video recording');
+        return;
+      }
+
       setIsRecording(true);
       setError(null);
       
+      console.log('Starting native video recording...');
+      
       await VideoRecorder.startRecording();
-      console.log('Video recording started');
+      
+      console.log('Video recording started successfully');
       
     } catch (error) {
       console.error('Failed to start video recording:', error);
@@ -108,7 +165,7 @@ export const useNativeCamera = (): UseNativeCameraReturn => {
         variant: "destructive",
       });
     }
-  }, [isInitialized, initializeCamera, toast]);
+  }, [isInitialized, initializeCamera, facingMode, toast]);
 
   const stopVideoRecording = useCallback(async (): Promise<string | null> => {
     if (!isRecording) {
