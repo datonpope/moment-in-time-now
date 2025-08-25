@@ -64,14 +64,15 @@ export const Footer = () => {
           <div className="space-y-4">
             <h4 className="font-medium">Connect</h4>
             <div className="flex gap-4">
-              <a 
+              {/* Disabled - wrong profile link */}
+              {/* <a 
                 href="https://bsky.app/profile/authenticmoments.bsky.social" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-foreground transition-colors"
               >
                 <Twitter className="h-5 w-5" />
-              </a>
+              </a> */}
             </div>
           </div>
         </div>
