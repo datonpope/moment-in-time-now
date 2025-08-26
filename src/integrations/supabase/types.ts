@@ -189,7 +189,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_moment_media_url: {
+        Args: { moment_id: string }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
