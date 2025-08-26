@@ -7,9 +7,11 @@ import { SEO } from "@/components/SEO";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Download, Smartphone, Video } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Download, Smartphone, Video, Bell } from "lucide-react";
 import { Capacitor } from '@capacitor/core';
 import { Link } from "react-router-dom";
+import { WaitlistDialog } from "@/components/WaitlistDialog";
 
 const Index = () => {
   const isNative = Capacitor.isNativePlatform();
@@ -40,17 +42,35 @@ const Index = () => {
                 
                 <Card className="max-w-md mx-auto p-6 mb-8 bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20">
                   <Download className="w-12 h-12 mx-auto mb-4 text-primary" />
-                  <h3 className="text-lg font-semibold mb-2">Download Required</h3>
+                  <h3 className="text-lg font-semibold mb-2">Mobile App Coming Soon</h3>
                   <p className="text-sm text-muted-foreground mb-4">
                     Video recording requires our mobile app for the authentic camera experience.
                   </p>
                   <div className="space-y-3">
-                    <Button className="w-full" size="lg">
-                      Download for iOS
-                    </Button>
-                    <Button className="w-full" variant="outline" size="lg">
-                      Download for Android
-                    </Button>
+                    <div className="flex items-center justify-between p-3 border rounded-lg bg-background/50">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                          <span className="text-xs font-bold text-primary">iOS</span>
+                        </div>
+                        <span className="text-sm font-medium">iPhone App</span>
+                      </div>
+                      <Badge variant="secondary" className="text-xs">Soon</Badge>
+                    </div>
+                    <div className="flex items-center justify-between p-3 border rounded-lg bg-background/50">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                          <span className="text-xs font-bold text-primary">AND</span>
+                        </div>
+                        <span className="text-sm font-medium">Android App</span>
+                      </div>
+                      <Badge variant="secondary" className="text-xs">Soon</Badge>
+                    </div>
+                    <WaitlistDialog>
+                      <Button className="w-full" size="lg" variant="authentic">
+                        <Bell className="w-4 h-4 mr-2" />
+                        Get notified when ready
+                      </Button>
+                    </WaitlistDialog>
                   </div>
                 </Card>
 
