@@ -98,26 +98,27 @@ const ProfileSettings = ({ profile, onUpdate }: ProfileSettingsProps) => {
     if (!file || !user) return;
 
     // Enhanced file validation
-    const maxSize = 2 * 1024 * 1024; // 2MB
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    
     if (!allowedTypes.includes(file.type)) {
       toast({
         title: "Invalid file type",
-        description: "Please select a JPEG, PNG, GIF, or WebP image",
+        description: "Please upload a JPEG, PNG, WebP, or GIF image",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (file.size > maxSize) {
+      toast({
+        title: "File too large",
+        description: "Please upload an image smaller than 5MB",
         variant: "destructive",
       });
       return;
     }
 
-    if (file.size > maxSize) {
-      toast({
-        title: "File too large",
-        description: `Image must be less than ${Math.round(maxSize / (1024 * 1024))}MB`,
-        variant: "destructive",
-      });
-      return;
-    }
 
     setUploadingAvatar(true);
 
@@ -216,7 +217,7 @@ const ProfileSettings = ({ profile, onUpdate }: ProfileSettingsProps) => {
                 disabled={uploadingAvatar}
               />
               <p className="text-sm text-muted-foreground mt-1">
-                JPEG, PNG, GIF or WebP. Max 2MB.
+                JPEG, PNG, GIF or WebP. Max 5MB.
               </p>
             </div>
           </div>

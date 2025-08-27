@@ -83,6 +83,23 @@ export const useMoments = () => {
 
       // Upload media file if provided
       if (mediaFile) {
+        // Enhanced file validation
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'video/webm'];
+        const maxSize = 50 * 1024 * 1024; // 50MB for videos, will check separately for images
+        const maxImageSize = 10 * 1024 * 1024; // 10MB for images
+        
+        if (!allowedTypes.includes(mediaFile.type)) {
+          throw new Error('Invalid file type. Please upload JPEG, PNG, WebP images or MP4, WebM videos.');
+        }
+        
+        const isImage = mediaFile.type.startsWith('image/');
+        const maxAllowedSize = isImage ? maxImageSize : maxSize;
+        
+        if (mediaFile.size > maxAllowedSize) {
+          const sizeMB = Math.round(maxAllowedSize / (1024 * 1024));
+          throw new Error(`File too large. Please upload a ${isImage ? 'image' : 'video'} smaller than ${sizeMB}MB.`);
+        }
+        
         const fileExt = mediaFile.name.split('.').pop();
         const fileName = `${user.id}/${Date.now()}.${fileExt}`;
         
@@ -92,11 +109,14 @@ export const useMoments = () => {
 
         if (uploadError) throw uploadError;
 
-        const { data: { publicUrl } } = supabase.storage
+        // Since bucket is now private, we need to get signed URL for access
+        const { data: signedUrlData, error: signedUrlError } = await supabase.storage
           .from('moments')
-          .getPublicUrl(fileName);
+          .createSignedUrl(fileName, 60 * 60 * 24 * 7); // 7 days expiry
 
-        mediaUrl = publicUrl;
+        if (signedUrlError) throw signedUrlError;
+
+        mediaUrl = signedUrlData.signedUrl;
         mediaType = mediaFile.type.startsWith('image/') ? 'image' : 'video';
       }
 
